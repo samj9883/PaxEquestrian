@@ -1,0 +1,405 @@
+import { useState } from 'react';
+import {
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { Button } from '../../components/common/Button';
+import { Input } from '../../components/common/Input';
+import { useData } from '../../contexts/DataContext';
+import { Client, Order } from '../../types';
+import { generateOrderNumber } from '../../utils/completionCalculator';
+
+export default function ManageScreen() {
+  const { addOrder, addClient, clients } = useData();
+  const [activeTab, setActiveTab] = useState<'order' | 'client'>('order');
+
+  // Order form state
+  const [orderForm, setOrderForm] = useState({
+    clientId: '',
+    clientName: '',
+    description: '',
+    internalCost: '',
+    clientPrice: '',
+    estimatedHours: '',
+    deadline: '',
+  });
+
+  // Client form state
+  const [clientForm, setClientForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    notes: '',
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const resetOrderForm = () => {
+    setOrderForm({
+      clientId: '',
+      clientName: '',
+      description: '',
+      internalCost: '',
+      clientPrice: '',
+      estimatedHours: '',
+      deadline: '',
+    });
+  };
+
+  const resetClientForm = () => {
+    setClientForm({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      notes: '',
+    });
+  };
+
+  const handleSubmitOrder = async () => {
+    // Validation
+    if (!orderForm.clientName || !orderForm.description || !orderForm.estimatedHours) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+
+    if (isNaN(parseFloat(orderForm.estimatedHours)) || parseFloat(orderForm.estimatedHours) <= 0) {
+      Alert.alert('Error', 'Please enter a valid estimated hours');
+      return;
+    }
+
+    if (orderForm.internalCost && isNaN(parseFloat(orderForm.internalCost))) {
+      Alert.alert('Error', 'Please enter a valid internal cost');
+      return;
+    }
+
+    if (orderForm.clientPrice && isNaN(parseFloat(orderForm.clientPrice))) {
+      Alert.alert('Error', 'Please enter a valid client price');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Find or create client
+      let clientId = orderForm.clientId;
+      if (!clientId) {
+        // Check if client exists by name
+        const existingClient = clients.find(
+          client => client.name.toLowerCase() === orderForm.clientName.toLowerCase()
+        );
+        clientId = existingClient?.id || '';
+      }
+
+      const newOrder: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
+        orderNumber: generateOrderNumber(),
+        clientId,
+        clientName: orderForm.clientName,
+        dateReceived: new Date(),
+        description: orderForm.description,
+        internalCost: parseFloat(orderForm.internalCost) || 0,
+        clientPrice: parseFloat(orderForm.clientPrice) || 0,
+        estimatedHours: parseFloat(orderForm.estimatedHours),
+        hoursCompleted: 0,
+        deadline: orderForm.deadline ? new Date(orderForm.deadline) : undefined,
+        status: 'waiting',
+      };
+
+      await addOrder(newOrder);
+      resetOrderForm();
+      Alert.alert('Success', 'Order added successfully');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add order');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmitClient = async () => {
+    // Validation
+    if (!clientForm.name) {
+      Alert.alert('Error', 'Client name is required');
+      return;
+    }
+
+    // Check if client already exists
+    const existingClient = clients.find(
+      client => client.name.toLowerCase() === clientForm.name.toLowerCase()
+    );
+
+    if (existingClient) {
+      Alert.alert('Error', 'A client with this name already exists');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const newClient: Omit<Client, 'id' | 'createdAt' | 'updatedAt'> = {
+        name: clientForm.name,
+        email: clientForm.email || undefined,
+        phone: clientForm.phone || undefined,
+        address: clientForm.address || undefined,
+        notes: clientForm.notes || undefined,
+      };
+
+      await addClient(newClient);
+      resetClientForm();
+      Alert.alert('Success', 'Client added successfully');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add client');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const selectClient = (client: Client) => {
+    setOrderForm(prev => ({
+      ...prev,
+      clientId: client.id,
+      clientName: client.name,
+    }));
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'order' && styles.activeTab]}
+          onPress={() => setActiveTab('order')}
+        >
+          <Text style={[styles.tabText, activeTab === 'order' && styles.activeTabText]}>
+            Add Order
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'client' && styles.activeTab]}
+          onPress={() => setActiveTab('client')}
+        >
+          <Text style={[styles.tabText, activeTab === 'client' && styles.activeTabText]}>
+            Add Client
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {activeTab === 'order' ? (
+          <View style={styles.formContainer}>
+            <Text style={styles.formTitle}>New Order</Text>
+
+            <Input
+              label="Client Name"
+              value={orderForm.clientName}
+              onChangeText={(text) => setOrderForm(prev => ({ ...prev, clientName: text }))}
+              placeholder="Enter client name"
+              required
+            />
+
+            {clients.length > 0 && !orderForm.clientId && (
+              <View style={styles.clientSuggestions}>
+                <Text style={styles.suggestionsTitle}>Existing Clients:</Text>
+                {clients
+                  .filter(client => 
+                    orderForm.clientName && 
+                    client.name.toLowerCase().includes(orderForm.clientName.toLowerCase())
+                  )
+                  .slice(0, 3)
+                  .map(client => (
+                    <TouchableOpacity
+                      key={client.id}
+                      style={styles.suggestionItem}
+                      onPress={() => selectClient(client)}
+                    >
+                      <Text style={styles.suggestionText}>{client.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+              </View>
+            )}
+
+            <Input
+              label="Description"
+              value={orderForm.description}
+              onChangeText={(text) => setOrderForm(prev => ({ ...prev, description: text }))}
+              placeholder="Describe the work to be done"
+              multiline
+              required
+            />
+
+            <Input
+              label="Estimated Hours"
+              value={orderForm.estimatedHours}
+              onChangeText={(text) => setOrderForm(prev => ({ ...prev, estimatedHours: text }))}
+              placeholder="0.0"
+              keyboardType="numeric"
+              required
+            />
+
+            <Input
+              label="Internal Cost"
+              value={orderForm.internalCost}
+              onChangeText={(text) => setOrderForm(prev => ({ ...prev, internalCost: text }))}
+              placeholder="0.00"
+              keyboardType="numeric"
+            />
+
+            <Input
+              label="Client Price"
+              value={orderForm.clientPrice}
+              onChangeText={(text) => setOrderForm(prev => ({ ...prev, clientPrice: text }))}
+              placeholder="0.00"
+              keyboardType="numeric"
+            />
+
+            <Input
+              label="Deadline (Optional)"
+              value={orderForm.deadline}
+              onChangeText={(text) => setOrderForm(prev => ({ ...prev, deadline: text }))}
+              placeholder="YYYY-MM-DD"
+            />
+
+            <Button
+              title={submitting ? 'Adding Order...' : 'Add Order'}
+              onPress={handleSubmitOrder}
+              disabled={submitting}
+              style={styles.submitButton}
+            />
+          </View>
+        ) : (
+          <View style={styles.formContainer}>
+            <Text style={styles.formTitle}>New Client</Text>
+
+            <Input
+              label="Name"
+              value={clientForm.name}
+              onChangeText={(text) => setClientForm(prev => ({ ...prev, name: text }))}
+              placeholder="Enter client name"
+              required
+            />
+
+            <Input
+              label="Email"
+              value={clientForm.email}
+              onChangeText={(text) => setClientForm(prev => ({ ...prev, email: text }))}
+              placeholder="client@example.com"
+              keyboardType="email-address"
+            />
+
+            <Input
+              label="Phone"
+              value={clientForm.phone}
+              onChangeText={(text) => setClientForm(prev => ({ ...prev, phone: text }))}
+              placeholder="(555) 123-4567"
+            />
+
+            <Input
+              label="Address"
+              value={clientForm.address}
+              onChangeText={(text) => setClientForm(prev => ({ ...prev, address: text }))}
+              placeholder="Enter full address"
+              multiline
+            />
+
+            <Input
+              label="Notes"
+              value={clientForm.notes}
+              onChangeText={(text) => setClientForm(prev => ({ ...prev, notes: text }))}
+              placeholder="Additional notes about the client"
+              multiline
+            />
+
+            <Button
+              title={submitting ? 'Adding Client...' : 'Add Client'}
+              onPress={handleSubmitClient}
+              disabled={submitting}
+              style={styles.submitButton}
+            />
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5DC',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: '#8B4513',
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#6B7280',
+  },
+  activeTabText: {
+    color: '#8B4513',
+    fontWeight: '600',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  formContainer: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  clientSuggestions: {
+    marginBottom: 16,
+  },
+  suggestionsTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  suggestionItem: {
+    backgroundColor: '#F3F4F6',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  suggestionText: {
+    fontSize: 14,
+    color: '#374151',
+  },
+  submitButton: {
+    marginTop: 24,
+  },
+});

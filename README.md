@@ -1,50 +1,259 @@
-# Welcome to your Expo app 👋
+# Leather Works - React Native Management App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A comprehensive mobile-first React Native application designed for leather work companies to manage orders, clients, and project timelines.
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+### 📦 Orders Management
+- View all active orders sorted by deadline
+- Real-time status updates (waiting, started, complete)
+- Progress tracking with hours completed vs. estimated
+- Quick status updates and hour logging
+- Automatic completion date calculations
 
-   ```bash
-   npm install
-   ```
+### 📅 Completion Timeline
+- Dynamic completion date estimation based on work preferences
+- Configurable work schedule (days/week, hours/day, days off)
+- Visual timeline for all active orders
+- Deadline management and prioritization
 
-2. Start the app
+### 👤 Client Management
+- Searchable client database
+- Complete contact information (email, phone, address)
+- Order history for each client
+- Notes and client relationship management
 
-   ```bash
-   npx expo start
-   ```
+### ➕ Order & Client Creation
+- Streamlined forms for adding new orders
+- Client auto-suggestion when creating orders
+- Form validation and error handling
+- Instant database updates
 
-In the output, you'll find options to open the app in a
+## 🔐 Security Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Firebase Authentication with email/password
+- Secure user management with role-based access
+- Internal use authentication system
+- Session management and auto-logout
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📱 Technical Stack
 
-## Get a fresh project
+- **Frontend**: React Native with Expo
+- **Backend**: Firebase Firestore (real-time database)
+- **Authentication**: Firebase Auth
+- **Navigation**: Expo Router with bottom tabs
+- **Styling**: React Native StyleSheet with professional design
+- **State Management**: React Context API
+- **TypeScript**: Full type safety
 
-When you're ready, run:
+## 🛠️ Installation & Setup
+
+### Prerequisites
+
+- Node.js (v16 or later)
+- npm or yarn
+- Expo CLI (`npm install -g @expo/cli`)
+- Firebase project (see Firebase Setup below)
+
+### 1. Clone and Install
 
 ```bash
-npm run reset-project
+git clone <repository-url>
+cd leather-works-app
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Firebase Configuration
 
-## Learn more
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com)
+2. Enable Authentication and Firestore Database
+3. Copy your Firebase config to `config/firebase.ts`
+4. See `FIREBASE_SETUP.md` for detailed instructions
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Run the App
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+# Start the development server
+npm start
 
-## Join the community
+# Run on specific platforms
+npm run ios     # iOS simulator
+npm run android # Android emulator
+npm run web     # Web browser
+```
 
-Join our community of developers creating universal apps.
+## 📁 Project Structure
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+├── app/                    # Expo Router screens
+│   ├── (tabs)/            # Tab navigation screens
+│   │   ├── orders.tsx     # Orders management
+│   │   ├── estimation.tsx # Timeline calculations
+│   │   ├── clients.tsx    # Client management
+│   │   └── manage.tsx     # Add orders/clients
+│   ├── login.tsx          # Authentication screen
+│   ├── index.tsx          # App entry point
+│   └── _layout.tsx        # Root layout with providers
+├── components/            # Reusable UI components
+│   ├── common/           # Generic components
+│   │   ├── Button.tsx    # Custom button component
+│   │   └── Input.tsx     # Custom input component
+│   └── OrderCard.tsx     # Order display component
+├── contexts/             # React Context providers
+│   ├── AuthContext.tsx   # Authentication state
+│   └── DataContext.tsx   # Orders/clients data
+├── config/               # Configuration files
+│   └── firebase.ts       # Firebase configuration
+├── types/                # TypeScript type definitions
+│   └── index.ts          # Data models
+└── utils/                # Utility functions
+    └── completionCalculator.ts # Date calculations
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Update `config/firebase.ts` with your Firebase configuration:
+
+```typescript
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};
+```
+
+### Initial User Setup
+
+1. Create a user in Firebase Authentication console
+2. Add user document to Firestore `users` collection:
+
+```json
+{
+  "username": "manager",
+  "role": "admin",
+  "createdAt": "timestamp"
+}
+```
+
+## 🎨 Design System
+
+### Colors
+- **Primary**: `#8B4513` (Saddle Brown - leather theme)
+- **Background**: `#F5F5DC` (Beige)
+- **Success**: `#10B981`
+- **Warning**: `#F59E0B`
+- **Error**: `#DC2626`
+
+### Typography
+- **Headers**: Bold, 18-24px
+- **Body**: Regular, 14-16px
+- **Captions**: Regular, 12-14px
+
+### Components
+- Consistent 8px spacing grid
+- 12px border radius for cards
+- Shadow/elevation for depth
+- Professional mobile-first design
+
+## 📊 Database Schema
+
+### Orders Collection
+```typescript
+{
+  id: string;
+  orderNumber: string;
+  clientId: string;
+  clientName: string;
+  dateReceived: Date;
+  description: string;
+  internalCost: number;
+  clientPrice: number;
+  estimatedHours: number;
+  hoursCompleted: number;
+  deadline?: Date;
+  status: 'waiting' | 'started' | 'complete';
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Clients Collection
+```typescript
+{
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+## 🚀 Deployment
+
+### Expo Build
+```bash
+# Build for production
+expo build:android
+expo build:ios
+```
+
+### Web Deployment
+```bash
+# Build for web
+expo build:web
+```
+
+## 🔒 Security Considerations
+
+- All Firebase security rules should be configured
+- User authentication required for all operations
+- Role-based access control implemented
+- Input validation on all forms
+- Secure environment variable handling
+
+## 📝 Usage Guide
+
+### Adding Orders
+1. Navigate to "Manage" tab
+2. Fill in client name (auto-suggests existing clients)
+3. Add description, hours, costs, and optional deadline
+4. Submit to create order
+
+### Managing Orders
+1. View orders in "Orders" tab
+2. Tap order to update status or add hours
+3. Orders automatically update completion status
+
+### Timeline Planning
+1. Check "Timeline" tab for completion estimates
+2. Adjust work preferences in settings
+3. View estimated completion dates
+
+### Client Management
+1. Search and view clients in "Clients" tab
+2. View order history and contact details
+3. Edit client information as needed
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+## 📄 License
+
+This project is proprietary software for internal use only.
+
+## 📞 Support
+
+For setup assistance or feature requests, contact the development team.
