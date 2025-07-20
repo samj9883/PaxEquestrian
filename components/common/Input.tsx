@@ -1,17 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, Text, TextInput, TextInputProps, TextStyle, View } from 'react-native';
 
-interface InputProps {
+interface InputProps extends TextInputProps {
   label: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  multiline?: boolean;
-  keyboardType?: 'default' | 'numeric' | 'email-address';
-  secureTextEntry?: boolean;
-  style?: ViewStyle;
   required?: boolean;
   error?: string;
+  style?: StyleProp<TextStyle>;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -20,14 +14,13 @@ export const Input: React.FC<InputProps> = ({
   onChangeText,
   placeholder,
   multiline = false,
-  keyboardType = 'default',
-  secureTextEntry = false,
   style,
   required = false,
   error,
+  ...rest
 }) => {
   return (
-    <View style={[styles.container, style]}>
+    <View style={styles.container}>
       <Text style={styles.label}>
         {label}
         {required && <Text style={styles.required}> *</Text>}
@@ -37,14 +30,14 @@ export const Input: React.FC<InputProps> = ({
           styles.input,
           multiline && styles.multiline,
           error && styles.inputError,
+          style,
         ]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         multiline={multiline}
-        keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}
         numberOfLines={multiline ? 4 : 1}
+        {...rest}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>

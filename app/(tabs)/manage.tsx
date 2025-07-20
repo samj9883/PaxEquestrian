@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+
 import Toast from 'react-native-toast-message';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -16,6 +17,8 @@ import { useData } from '../../contexts/DataContext';
 import { Client, Order } from '../../types';
 import { generateOrderNumber } from '../../utils/completionCalculator';
 
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" />
 
 
 
@@ -269,7 +272,8 @@ export default function ManageScreen() {
               label="Client Name"
               value={orderForm.clientName}
               onChangeText={(text) => setOrderForm(prev => ({ ...prev, clientName: text }))}
-              placeholder="Enter client name"
+              placeholder="Search and select an existing client"
+              placeholderTextColor="#A9A9A9"
               required
             />
 
@@ -299,6 +303,7 @@ export default function ManageScreen() {
               value={orderForm.description}
               onChangeText={(text) => setOrderForm(prev => ({ ...prev, description: text }))}
               placeholder="Describe the work to be done"
+              placeholderTextColor="#A9A9A9"
               multiline
               required
             />
@@ -309,95 +314,131 @@ export default function ManageScreen() {
               onChangeText={(text) => setOrderForm(prev => ({ ...prev, estimatedHours: text }))}
               placeholder="0.0"
               keyboardType="numeric"
+              placeholderTextColor="#A9A9A9"
               required
             />
 
             <Input
               label="Internal Cost"
-              value={orderForm.internalCost}
-              onChangeText={(text) => setOrderForm(prev => ({ ...prev, internalCost: text }))}
-              placeholder="0.00"
+              value={orderForm.internalCost !== '' ? `£${orderForm.internalCost}` : ''}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9.]/g, ''); // Keep only numbers and dot
+                setOrderForm((prev) => ({ ...prev, internalCost: numericValue }));
+              }}
+              placeholder="£0.00"
+              placeholderTextColor="#A9A9A9"
               keyboardType="numeric"
             />
 
             <Input
               label="Client Price"
-              value={orderForm.clientPrice}
-              onChangeText={(text) => setOrderForm(prev => ({ ...prev, clientPrice: text }))}
-              placeholder="0.00"
+              value={orderForm.clientPrice !== '' ? `£${orderForm.clientPrice}` : ''}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9.]/g, '');
+                setOrderForm((prev) => ({ ...prev, clientPrice: numericValue }));
+              }}
+              placeholder="£0.00"
+              placeholderTextColor="#A9A9A9"
               keyboardType="numeric"
             />
 
-{Platform.OS === 'web' ? (
-  <View style={{ marginBottom: 16 }}>
-    <input
-      type="date"
-      value={orderForm.deadline ? orderForm.deadline.split('T')[0] : ''}
-      onChange={(e) => {
-        const target = e.target as HTMLInputElement;
-        const selectedDate = target.value;
-        if (selectedDate) {
-          setOrderForm((prev) => ({
-            ...prev,
-            deadline: new Date(selectedDate).toISOString(),
-          }));
-        }
-      }}
-      style={{
-        padding: '12px 16px',
-        borderRadius: '8px',
-        backgroundColor: '#f9f9f9',
-        border: '1px solid #ccc',
-        width: '100%',
-        color: '#333',
-        fontSize: '16px',
-      }}
-    />
 
-  </View>
-) : (
-  <>
-    <TouchableOpacity
-      onPress={() => setShowDatePicker(true)}
-      style={{
-        marginBottom: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        backgroundColor: '#f9f9f9',
-        borderColor: '#ccc',
-        borderWidth: 1,
-      }}
-    >
-      <Text style={{ color: '#333' }}>
-        {orderForm.deadline
-          ? new Date(orderForm.deadline).toLocaleDateString()
-          : 'Select deadline date'}
-      </Text>
-    </TouchableOpacity>
+            <View style={{ marginBottom: 16 }}>
+              {Platform.OS === 'web' ? (
+                <>
+                  <label
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '600',
+                      color: '#4A4A4A',
+                      marginBottom: 8,
+                      fontFamily: 'Space Mono, monospace',
+                    }}
+                  >
+                    Deadline
+                  </label>
+                  <input
+                    type="date"
+                    value={orderForm.deadline ? orderForm.deadline.split('T')[0] : ''}
+                    onChange={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      const selectedDate = target.value;
+                      if (selectedDate) {
+                        setOrderForm((prev) => ({
+                          ...prev,
+                          deadline: new Date(selectedDate).toISOString(),
+                        }));
+                      }
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      backgroundColor: '#fff',
+                      border: '1px solid #ccc',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      height: '48px',
+                      color: '#333',
+                      fontSize: '16px',
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '600',
+                      color: '#4A4A4A',
+                      marginBottom: 8,
+                      fontFamily: 'Space Mono, monospace',
+                    }}
+                  >
+                    Deadline
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    style={{
+                      marginBottom: 16,
+                      paddingVertical: 12,
+                      paddingHorizontal: 16,
+                      borderRadius: 8,
+                      backgroundColor: '#f9f9f9',
+                      borderColor: '#ccc',
+                      borderWidth: 1,
+                    }}
+                  >
+                    <Text style={{ color: '#333' }}>
+                      {orderForm.deadline
+                        ? new Date(orderForm.deadline).toLocaleDateString()
+                        : 'Select deadline date'}
+                    </Text>
+                  </TouchableOpacity>
 
-    {showDatePicker && (
-      <DateTimePicker
-        mode="date"
-        display="default"
-        value={
-          orderForm.deadline
-            ? new Date(orderForm.deadline)
-            : new Date()
-        }
-        onChange={(event, selectedDate) => {
-          setShowDatePicker(false);
-          if (selectedDate) {
-            setOrderForm((prev) => ({
-              ...prev,
-              deadline: selectedDate.toISOString(),
-            }));
-          }
-        }}
-      />
-    )}
-  </>
-)}
+                  {showDatePicker && (
+                    <DateTimePicker
+                      mode="date"
+                      display="default"
+                      value={
+                        orderForm.deadline
+                          ? new Date(orderForm.deadline)
+                          : new Date()
+                      }
+                      onChange={(event, selectedDate) => {
+                        setShowDatePicker(false);
+                        if (selectedDate) {
+                          setOrderForm((prev) => ({
+                            ...prev,
+                            deadline: selectedDate.toISOString(),
+                          }));
+                        }
+                      }}
+                    />
+                  )}
+                </>
+              )}
+            </View>
+
 
 
 
@@ -417,6 +458,7 @@ export default function ManageScreen() {
               value={clientForm.name}
               onChangeText={(text) => setClientForm(prev => ({ ...prev, name: text }))}
               placeholder="Enter client name"
+              placeholderTextColor="#A9A9A9"
               required
             />
 
@@ -425,6 +467,7 @@ export default function ManageScreen() {
               value={clientForm.email}
               onChangeText={(text) => setClientForm(prev => ({ ...prev, email: text }))}
               placeholder="client@example.com"
+              placeholderTextColor="#A9A9A9"
               keyboardType="email-address"
             />
 
@@ -432,7 +475,9 @@ export default function ManageScreen() {
               label="Phone"
               value={clientForm.phone}
               onChangeText={(text) => setClientForm(prev => ({ ...prev, phone: text }))}
-              placeholder="(555) 123-4567"
+              placeholder="eg. 07496745208"
+              placeholderTextColor="#A9A9A9"
+
             />
 
             <Input
@@ -440,6 +485,7 @@ export default function ManageScreen() {
               value={clientForm.address}
               onChangeText={(text) => setClientForm(prev => ({ ...prev, address: text }))}
               placeholder="Enter full address"
+              placeholderTextColor="#A9A9A9"
               multiline
             />
 
@@ -448,6 +494,7 @@ export default function ManageScreen() {
               value={clientForm.notes}
               onChangeText={(text) => setClientForm(prev => ({ ...prev, notes: text }))}
               placeholder="Additional notes about the client"
+              placeholderTextColor="#A9A9A9"
               multiline
             />
 
