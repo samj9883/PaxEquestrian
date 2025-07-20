@@ -48,13 +48,13 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.header}>
-        <Text style={styles.orderNumber}>{order.orderNumber}</Text>
+        <Text style={styles.clientName}>{order.clientName} | {order.jobTitle}</Text>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
           <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
         </View>
       </View>
 
-      <Text style={styles.clientName}>{order.clientName}</Text>
+      <Text style={styles.orderNumber}>{order.orderNumber}</Text>
       <Text style={styles.description} numberOfLines={2}>
         {order.description}
       </Text>
@@ -142,9 +142,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   orderNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#8B4513',
+    marginBottom: 4,
+
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -157,10 +159,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   clientName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#8B4513',
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
   },
   description: {
     fontSize: 14,

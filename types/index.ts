@@ -22,6 +22,7 @@ export interface Order {
   orderNumber: string;
   clientId: string;
   clientName: string; // Denormalized for easier querying
+  jobTitle: string;
   dateReceived: Date;
   description: string;
   internalCost: number;

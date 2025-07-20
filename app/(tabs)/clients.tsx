@@ -207,14 +207,19 @@ export default function ClientsScreen() {
                 <View style={styles.ordersSection}>
                   <Text style={styles.sectionTitle}>Order History</Text>
                   {selectedClient && getClientOrders(selectedClient.id).map(order => (
-                    <View key={order.id} style={styles.orderItem}>
-                      <Text style={styles.orderNumber}>{order.orderNumber}</Text>
-                      <Text style={styles.orderDescription} numberOfLines={1}>
-                        {order.description}
-                      </Text>
-                      <Text style={styles.orderStatus}>{order.status}</Text>
-                    </View>
-                  ))}
+                  <View key={order.id} style={styles.orderItem}>
+                      <Text style={styles.orderTitle}>{order.jobTitle}</Text>
+                      <Text style={styles.orderDetail}>Order #: {order.orderNumber}</Text>
+                      <Text style={styles.orderDetail}>Description: {order.description}</Text>
+                      <Text style={styles.orderDetail}>Status: {order.status}</Text>
+                      <Text style={styles.orderDetail}>Estimated Hours: {order.estimatedHours}</Text>
+                      <Text style={styles.orderDetail}>Hours Completed: {order.hoursCompleted}</Text>
+                      <Text style={styles.orderDetail}>Internal Cost: £{order.internalCost.toFixed(2)}</Text>
+                      <Text style={styles.orderDetail}>Client Price: £{order.clientPrice.toFixed(2)}</Text>
+                      <Text style={styles.orderDetail}>Deadline: {order.deadline ? new Date(order.deadline).toLocaleDateString() : 'N/A'}</Text>
+                      <Text style={styles.orderDetail}>Date Received: {order.dateReceived ? new Date(order.dateReceived).toLocaleDateString() : 'N/A'}</Text>
+                  </View>
+              ))}
                   {selectedClient && getClientOrders(selectedClient.id).length === 0 && (
                     <Text style={styles.noOrdersText}>No orders yet</Text>
                   )}
@@ -440,7 +445,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
-  orderNumber: {
+  orderTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1F2937',
@@ -470,4 +475,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 16,
   },
+  orderDetail: {
+    fontSize: 12,
+    color: '#374151',
+    marginBottom: 2,
+},
+
 });

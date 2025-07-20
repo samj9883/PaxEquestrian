@@ -161,9 +161,12 @@ export default function OrdersScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              Order: {selectedOrder?.orderNumber}
-            </Text>
+          <Text style={styles.modalTitle}>
+            {selectedOrder?.clientName} | {selectedOrder?.jobTitle} 
+          </Text>
+
+
+
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
               style={styles.closeButton}

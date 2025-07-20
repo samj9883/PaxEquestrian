@@ -29,6 +29,7 @@ export default function ManageScreen() {
   const [orderForm, setOrderForm] = useState({
     clientId: '',
     clientName: '',
+    jobTitle: '',
     description: '',
     internalCost: '',
     clientPrice: '',
@@ -53,6 +54,7 @@ export default function ManageScreen() {
     setOrderForm({
       clientId: '',
       clientName: '',
+      jobTitle: '',
       description: '',
       internalCost: '',
       clientPrice: '',
@@ -72,7 +74,7 @@ export default function ManageScreen() {
   };
 
   const handleSubmitOrder = async () => {
-    if (!orderForm.clientName || !orderForm.description || !orderForm.estimatedHours) {
+    if (!orderForm.clientName || !orderForm.jobTitle || !orderForm.description || !orderForm.estimatedHours) {
       Toast.show({
         type: 'error',
         text1: 'Missing Fields',
@@ -137,6 +139,7 @@ export default function ManageScreen() {
         clientId,
         clientName: orderForm.clientName,
         dateReceived: new Date(),
+        jobTitle: orderForm.jobTitle || '', // 👈 ADD THIS LINE
         description: orderForm.description,
         internalCost: parseFloat(orderForm.internalCost) || 0,
         clientPrice: parseFloat(orderForm.clientPrice) || 0,
@@ -144,6 +147,7 @@ export default function ManageScreen() {
         hoursCompleted: 0,
         deadline: orderForm.deadline ? new Date(orderForm.deadline) : undefined,
         status: 'waiting',
+
       };
 
       await addOrder(newOrder);
@@ -297,6 +301,15 @@ export default function ManageScreen() {
                   ))}
               </View>
             )}
+
+            <Input
+                label="Job Title"
+                value={orderForm.jobTitle}
+                onChangeText={(text) => setOrderForm(prev => ({ ...prev, jobTitle: text }))}
+                placeholder="Job title for this work"
+                placeholderTextColor="#A9A9A9"
+                required  
+            />
 
             <Input
               label="Description"
