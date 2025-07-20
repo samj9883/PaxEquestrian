@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -14,10 +15,9 @@ import { Client, Order } from '../../types';
 import { generateOrderNumber } from '../../utils/completionCalculator';
 
 export default function ManageScreen() {
-  const { addOrder, addClient, clients } = useData();
+  const { addOrder, addClient, clients, userReady, loading } = useData();
   const [activeTab, setActiveTab] = useState<'order' | 'client'>('order');
 
-  // Order form state
   const [orderForm, setOrderForm] = useState({
     clientId: '',
     clientName: '',
@@ -28,7 +28,6 @@ export default function ManageScreen() {
     deadline: '',
   });
 
-  // Client form state
   const [clientForm, setClientForm] = useState({
     name: '',
     email: '',
@@ -62,7 +61,6 @@ export default function ManageScreen() {
   };
 
   const handleSubmitOrder = async () => {
-    // Validation
     if (!orderForm.clientName || !orderForm.description || !orderForm.estimatedHours) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
@@ -85,10 +83,8 @@ export default function ManageScreen() {
 
     setSubmitting(true);
     try {
-      // Find or create client
       let clientId = orderForm.clientId;
       if (!clientId) {
-        // Check if client exists by name
         const existingClient = clients.find(
           client => client.name.toLowerCase() === orderForm.clientName.toLowerCase()
         );
@@ -120,13 +116,11 @@ export default function ManageScreen() {
   };
 
   const handleSubmitClient = async () => {
-    // Validation
     if (!clientForm.name) {
       Alert.alert('Error', 'Client name is required');
       return;
     }
 
-    // Check if client already exists
     const existingClient = clients.find(
       client => client.name.toLowerCase() === clientForm.name.toLowerCase()
     );
@@ -163,6 +157,27 @@ export default function ManageScreen() {
       clientName: client.name,
     }));
   };
+
+  // ✅ WAIT for user auth to be ready
+  if (!userReady) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#8B4513" />
+        <Text style={styles.loadingText}>Checking authentication...</Text>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#8B4513" />
+        <Text style={styles.loadingText}>Loading data...</Text>
+      </View>
+    );
+  }
+
+
 
   return (
     <View style={styles.container}>
@@ -402,4 +417,16 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 24,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F5DC',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#6B7280',
+  },
+  
 });

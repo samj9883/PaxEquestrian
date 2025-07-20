@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import {
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { OrderCard } from '../../components/OrderCard';
 import { Button } from '../../components/common/Button';
@@ -15,13 +16,29 @@ import { WorkPreferences } from '../../types';
 import { calculateEstimatedCompletions } from '../../utils/completionCalculator';
 
 export default function EstimationScreen() {
-  const { orders, workPreferences, updateWorkPreferences } = useData();
+  const { orders, workPreferences, updateWorkPreferences, loading, userReady } = useData();
   const [modalVisible, setModalVisible] = useState(false);
   const [preferences, setPreferences] = useState<WorkPreferences>(workPreferences);
 
-  const estimations = calculateEstimatedCompletions(orders, workPreferences);
+  if (!userReady) {
+    return (
+      <View style={styles.emptyContainer}>
+        <ActivityIndicator size="large" color="#8B4513" />
+        <Text style={styles.emptyText}>Checking authentication...</Text>
+      </View>
+    );
+  }
 
-  // Get active orders for display
+  if (loading) {
+    return (
+      <View style={styles.emptyContainer}>
+        <ActivityIndicator size="large" color="#8B4513" />
+        <Text style={styles.emptyText}>Loading orders...</Text>
+      </View>
+    );
+  }
+
+  const estimations = calculateEstimatedCompletions(orders, workPreferences);
   const activeOrders = orders.filter(order => order.status !== 'complete');
 
   const handleSavePreferences = () => {
@@ -105,7 +122,7 @@ export default function EstimationScreen() {
 
           <ScrollView style={styles.modalContent}>
             <Text style={styles.sectionTitle}>Work Schedule</Text>
-            
+
             <Input
               label="Days Per Week"
               value={preferences.daysPerWeek.toString()}
@@ -128,7 +145,7 @@ export default function EstimationScreen() {
 
             <Text style={styles.sectionTitle}>Days Off</Text>
             <Text style={styles.sectionSubtitle}>Select your regular days off</Text>
-            
+
             <View style={styles.daysContainer}>
               {dayNames.map((day, index) => (
                 <TouchableOpacity
@@ -160,6 +177,7 @@ export default function EstimationScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Modal,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Modal,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { OrderCard } from '../../components/OrderCard';
 import { Button } from '../../components/common/Button';
@@ -17,7 +17,7 @@ import { useData } from '../../contexts/DataContext';
 import { Order } from '../../types';
 
 export default function OrdersScreen() {
-  const { orders, updateOrder, loading } = useData();
+  const { orders, updateOrder, loading, userReady } = useData();
   const { logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -95,9 +95,13 @@ export default function OrdersScreen() {
     );
   };
 
-  const renderOrder = ({ item }: { item: Order }) => (
-    <OrderCard order={item} onPress={() => handleOrderPress(item)} />
-  );
+  if (!userReady) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Checking authentication...</Text>
+      </View>
+    );
+  }
 
   if (loading) {
     return (
@@ -106,6 +110,13 @@ export default function OrdersScreen() {
       </View>
     );
   }
+
+
+  const renderOrder = ({ item }: { item: Order }) => (
+    <OrderCard order={item} onPress={() => handleOrderPress(item)} />
+  );
+
+  
 
   return (
     <View style={styles.container}>

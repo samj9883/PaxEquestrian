@@ -1,6 +1,16 @@
-import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc
+} from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { db } from '../config/firebase';
+import { auth, db } from '../config/firebase';
 import { Client, Order, WorkPreferences } from '../types';
 
 interface DataContextType {
@@ -15,6 +25,7 @@ interface DataContextType {
   deleteClient: (id: string) => Promise<void>;
   updateWorkPreferences: (preferences: WorkPreferences) => void;
   loading: boolean;
+  userReady: boolean; // ✅ Added to track auth readiness
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -30,7 +41,7 @@ export const useData = () => {
 const defaultWorkPreferences: WorkPreferences = {
   daysPerWeek: 5,
   hoursPerDay: 8,
-  daysOff: [0], // Sunday off by default
+  daysOff: [0],
   customDaysOff: [],
 };
 
@@ -39,39 +50,51 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [clients, setClients] = useState<Client[]>([]);
   const [workPreferences, setWorkPreferences] = useState<WorkPreferences>(defaultWorkPreferences);
   const [loading, setLoading] = useState(true);
+  const [userReady, setUserReady] = useState(false); // ✅ New state
 
   useEffect(() => {
-    // Subscribe to orders
-    const ordersQuery = query(collection(db, 'orders'), orderBy('deadline', 'asc'));
-    const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
-      const ordersData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        dateReceived: doc.data().dateReceived?.toDate() || new Date(),
-        deadline: doc.data().deadline?.toDate() || null,
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-      })) as Order[];
-      setOrders(ordersData);
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      setUserReady(true); // ✅ Auth check is done, regardless of user
+
+      if (!user) {
+        setOrders([]);
+        setClients([]);
+        setLoading(false);
+        return;
+      }
+
+      const ordersQuery = query(collection(db, 'orders'), orderBy('deadline', 'asc'));
+      const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
+        const ordersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          dateReceived: doc.data().dateReceived?.toDate() || new Date(),
+          deadline: doc.data().deadline?.toDate() || null,
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        })) as Order[];
+        setOrders(ordersData);
+      });
+
+      const clientsQuery = query(collection(db, 'clients'), orderBy('name', 'asc'));
+      const unsubscribeClients = onSnapshot(clientsQuery, (snapshot) => {
+        const clientsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        })) as Client[];
+        setClients(clientsData);
+        setLoading(false);
+      });
+
+      return () => {
+        unsubscribeOrders();
+        unsubscribeClients();
+      };
     });
 
-    // Subscribe to clients
-    const clientsQuery = query(collection(db, 'clients'), orderBy('name', 'asc'));
-    const unsubscribeClients = onSnapshot(clientsQuery, (snapshot) => {
-      const clientsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-      })) as Client[];
-      setClients(clientsData);
-      setLoading(false);
-    });
-
-    return () => {
-      unsubscribeOrders();
-      unsubscribeClients();
-    };
+    return () => unsubscribeAuth();
   }, []);
 
   const addOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -116,7 +139,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateWorkPreferences = (preferences: WorkPreferences) => {
     setWorkPreferences(preferences);
-    // You might want to persist this to AsyncStorage or Firestore
   };
 
   const value = {
@@ -131,6 +153,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     deleteClient,
     updateWorkPreferences,
     loading,
+    userReady, // ✅ exposed
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

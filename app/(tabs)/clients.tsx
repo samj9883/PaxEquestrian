@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -44,12 +44,31 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress, orderCount }) 
 );
 
 export default function ClientsScreen() {
-  const { clients, orders, updateClient } = useData();
+  const { clients, orders, updateClient, loading, userReady } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editedClient, setEditedClient] = useState<Client | null>(null);
+
+
+  if (!userReady) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>Checking authentication...</Text>
+      </View>
+    );
+  }
+  
+  if (loading) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>Loading clients...</Text>
+      </View>
+    );
+  }
+  
+  
 
   // Filter clients based on search query
   const filteredClients = clients.filter(client =>
