@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   FlatList,
   Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { useData } from '../../contexts/DataContext';
 import { Client } from '../../types';
 import { formatDate } from '../../utils/completionCalculator';
+
 
 interface ClientCardProps {
   client: Client;
@@ -107,9 +108,15 @@ export default function ClientsScreen() {
       });
       setModalVisible(false);
       setEditMode(false);
-      Alert.alert('Success', 'Client updated successfully');
+      Toast.show({
+              type: 'success',
+              text1: 'Client updated successfully',
+            });
     } catch (error) {
-      Alert.alert('Error', 'Failed to update client');
+      Toast.show({
+              type: 'error',
+              text1: 'Failed to update client.',
+            });
     }
   };
 

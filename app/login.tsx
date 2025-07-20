@@ -1,15 +1,15 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,7 +23,11 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Toast.show({
+              type: 'error',
+              text1: 'Empty fields',
+              text2: 'Please fill all fields.',
+            });
       return;
     }
 
@@ -32,7 +36,11 @@ export default function Login() {
       await login(email, password);
       router.replace('/(tabs)/orders');
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'Invalid credentials');
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: 'Invalid credentials',
+      });
     } finally {
       setLoading(false);
     }

@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import {
-  Alert,
   FlatList,
   Modal,
   RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { OrderCard } from '../../components/OrderCard';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import { Order } from '../../types';
+import { confirmLogout } from '../../utils/confirmLogout';
+
+
 
 export default function OrdersScreen() {
   const { orders, updateOrder, loading, userReady } = useData();
@@ -57,7 +60,10 @@ export default function OrdersScreen() {
       setModalVisible(false);
       setSelectedOrder(null);
     } catch (error) {
-      Alert.alert('Error', 'Failed to update order status');
+      Toast.show({
+              type: 'error',
+              text1: 'Failed to update order status',
+            });
     }
   };
 
@@ -66,7 +72,10 @@ export default function OrdersScreen() {
 
     const additionalHours = parseFloat(hoursToAdd);
     if (isNaN(additionalHours) || additionalHours < 0) {
-      Alert.alert('Error', 'Please enter a valid number of hours');
+      Toast.show({
+              type: 'error',
+              text1: 'Please enter a valid number of hours',
+            });
       return;
     }
 
@@ -80,20 +89,17 @@ export default function OrdersScreen() {
       setModalVisible(false);
       setSelectedOrder(null);
     } catch (error) {
-      Alert.alert('Error', 'Failed to update hours');
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to update hours',
+      });
     }
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', onPress: logout, style: 'destructive' },
-      ]
-    );
+    confirmLogout(logout);
   };
+  
 
   if (!userReady) {
     return (

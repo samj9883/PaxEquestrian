@@ -10,6 +10,7 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import Toast from 'react-native-toast-message';
 import { auth, db } from '../config/firebase';
 import { Client, Order, WorkPreferences } from '../types';
 
@@ -156,5 +157,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     userReady, // ✅ exposed
   };
 
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  return (
+    <DataContext.Provider value={value}>
+      {children}
+      <Toast />  {/* ✅ Toast is placed here correctly */}
+    </DataContext.Provider>
+  );
+  
 };

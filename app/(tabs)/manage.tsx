@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { useData } from '../../contexts/DataContext';
 import { Client, Order } from '../../types';
 import { generateOrderNumber } from '../../utils/completionCalculator';
+
 
 export default function ManageScreen() {
   const { addOrder, addClient, clients, userReady, loading } = useData();
@@ -62,22 +63,39 @@ export default function ManageScreen() {
 
   const handleSubmitOrder = async () => {
     if (!orderForm.clientName || !orderForm.description || !orderForm.estimatedHours) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      Toast.show({
+        type: 'error',
+        text1: 'Missing Fields',
+        text2: 'Please fill in all required fields.',
+      });
       return;
     }
+    
 
     if (isNaN(parseFloat(orderForm.estimatedHours)) || parseFloat(orderForm.estimatedHours) <= 0) {
-      Alert.alert('Error', 'Please enter a valid estimated hours');
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Hours',
+        text2: 'Please enter a valid estimated hours.',
+      });
       return;
     }
 
     if (orderForm.internalCost && isNaN(parseFloat(orderForm.internalCost))) {
-      Alert.alert('Error', 'Please enter a valid internal cost');
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Cost',
+        text2: 'Please enter a valid internal cost.',
+      });
       return;
     }
 
     if (orderForm.clientPrice && isNaN(parseFloat(orderForm.clientPrice))) {
-      Alert.alert('Error', 'Please enter a valid client price');
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Price',
+        text2: 'Please enter a valid client price.',
+      });
       return;
     }
 
@@ -107,9 +125,15 @@ export default function ManageScreen() {
 
       await addOrder(newOrder);
       resetOrderForm();
-      Alert.alert('Success', 'Order added successfully');
+      Toast.show({
+        type: 'success',
+        text1: 'Order added successfully',
+      });
     } catch (error) {
-      Alert.alert('Error', 'Failed to add order');
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to add order',
+      });
     } finally {
       setSubmitting(false);
     }
@@ -117,16 +141,25 @@ export default function ManageScreen() {
 
   const handleSubmitClient = async () => {
     if (!clientForm.name) {
-      Alert.alert('Error', 'Client name is required');
+      Toast.show({
+        type: 'error',
+        text1: 'Missing Field',
+        text2: 'Client name is required.',
+      });
       return;
     }
+    
 
     const existingClient = clients.find(
       client => client.name.toLowerCase() === clientForm.name.toLowerCase()
     );
 
     if (existingClient) {
-      Alert.alert('Error', 'A client with this name already exists');
+      Toast.show({
+        type: 'error',
+        text1: 'Existing Client',
+        text2: 'Client with this name already exists.',
+      });
       return;
     }
 
@@ -142,9 +175,16 @@ export default function ManageScreen() {
 
       await addClient(newClient);
       resetClientForm();
-      Alert.alert('Success', 'Client added successfully');
+      Toast.show({
+        type: 'success',
+        text1: 'New client added',
+        
+      });
     } catch (error) {
-      Alert.alert('Error', 'Failed to add client');
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to add new client',
+      });
     } finally {
       setSubmitting(false);
     }
