@@ -1,6 +1,8 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +15,8 @@ import { Input } from '../../components/common/Input';
 import { useData } from '../../contexts/DataContext';
 import { Client, Order } from '../../types';
 import { generateOrderNumber } from '../../utils/completionCalculator';
+
+
 
 
 export default function ManageScreen() {
@@ -36,6 +40,9 @@ export default function ManageScreen() {
     address: '',
     notes: '',
   });
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -102,12 +109,25 @@ export default function ManageScreen() {
     setSubmitting(true);
     try {
       let clientId = orderForm.clientId;
+
       if (!clientId) {
         const existingClient = clients.find(
           client => client.name.toLowerCase() === orderForm.clientName.toLowerCase()
         );
-        clientId = existingClient?.id || '';
+
+        if (!existingClient) {
+          Toast.show({
+            type: 'error',
+            text1: 'Client Not Found',
+            text2: 'Please select an existing client or add them first.',
+          });
+          setSubmitting(false);
+          return;
+        }
+
+        clientId = existingClient.id;
       }
+
 
       const newOrder: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
         orderNumber: generateOrderNumber(),
@@ -308,12 +328,78 @@ export default function ManageScreen() {
               keyboardType="numeric"
             />
 
-            <Input
-              label="Deadline (Optional)"
-              value={orderForm.deadline}
-              onChangeText={(text) => setOrderForm(prev => ({ ...prev, deadline: text }))}
-              placeholder="YYYY-MM-DD"
-            />
+{Platform.OS === 'web' ? (
+  <View style={{ marginBottom: 16 }}>
+    <input
+      type="date"
+      value={orderForm.deadline ? orderForm.deadline.split('T')[0] : ''}
+      onChange={(e) => {
+        const target = e.target as HTMLInputElement;
+        const selectedDate = target.value;
+        if (selectedDate) {
+          setOrderForm((prev) => ({
+            ...prev,
+            deadline: new Date(selectedDate).toISOString(),
+          }));
+        }
+      }}
+      style={{
+        padding: '12px 16px',
+        borderRadius: '8px',
+        backgroundColor: '#f9f9f9',
+        border: '1px solid #ccc',
+        width: '100%',
+        color: '#333',
+        fontSize: '16px',
+      }}
+    />
+
+  </View>
+) : (
+  <>
+    <TouchableOpacity
+      onPress={() => setShowDatePicker(true)}
+      style={{
+        marginBottom: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        backgroundColor: '#f9f9f9',
+        borderColor: '#ccc',
+        borderWidth: 1,
+      }}
+    >
+      <Text style={{ color: '#333' }}>
+        {orderForm.deadline
+          ? new Date(orderForm.deadline).toLocaleDateString()
+          : 'Select deadline date'}
+      </Text>
+    </TouchableOpacity>
+
+    {showDatePicker && (
+      <DateTimePicker
+        mode="date"
+        display="default"
+        value={
+          orderForm.deadline
+            ? new Date(orderForm.deadline)
+            : new Date()
+        }
+        onChange={(event, selectedDate) => {
+          setShowDatePicker(false);
+          if (selectedDate) {
+            setOrderForm((prev) => ({
+              ...prev,
+              deadline: selectedDate.toISOString(),
+            }));
+          }
+        }}
+      />
+    )}
+  </>
+)}
+
+
 
             <Button
               title={submitting ? 'Adding Order...' : 'Add Order'}
