@@ -148,6 +148,7 @@ export default function ManageScreen() {
         deadline: orderForm.deadline ? new Date(orderForm.deadline) : undefined,
         status: 'waiting',
         paymentStatus:'incomplete',
+        notes: [],
 
       };
 

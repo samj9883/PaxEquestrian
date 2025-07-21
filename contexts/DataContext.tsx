@@ -157,6 +157,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     userReady, // ✅ exposed
   };
 
+  
+
   return (
     <DataContext.Provider value={value}>
       {children}

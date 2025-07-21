@@ -21,7 +21,7 @@ export interface Order {
   id: string;
   orderNumber: string;
   clientId: string;
-  clientName: string; // Denormalized for easier querying
+  clientName: string;
   jobTitle: string;
   dateReceived: Date;
   description: string;
@@ -30,11 +30,13 @@ export interface Order {
   estimatedHours: number;
   hoursCompleted: number;
   deadline?: Date;
-  status: 'waiting' | 'started' | 'complete';
+  status: 'waiting' | 'started' | 'complete' | 'deleted'; 
   paymentStatus: 'incomplete' | 'pending' | 'paid';
   createdAt: Date;
   updatedAt: Date;
+  notes?: string[];
 }
+
 
 export interface WorkPreferences {
   daysPerWeek: number;
