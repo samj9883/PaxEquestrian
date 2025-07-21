@@ -11,8 +11,9 @@ import Toast from 'react-native-toast-message';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { useData } from '../../contexts/DataContext';
-import { Client } from '../../types';
+import { Client, Order } from '../../types';
 import { formatDate } from '../../utils/completionCalculator';
+
 
 
 interface ClientCardProps {
@@ -45,7 +46,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress, orderCount }) 
 );
 
 export default function ClientsScreen() {
-  const { clients, orders, updateClient, loading, userReady } = useData();
+  const { clients, orders, updateClient, updateOrder, loading, userReady } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -128,6 +129,20 @@ export default function ClientsScreen() {
     />
   );
 
+  const handleUpdatePaymentStatus = (orderId: string, newStatus: 'incomplete' | 'pending' | 'paid') => {
+    const orderToUpdate = orders.find(o => o.id === orderId);
+    if (!orderToUpdate) return;
+    updateOrder(orderId, { paymentStatus: newStatus });
+  };
+  
+  const handlePrintInvoice = (order: Order) => {
+    Toast.show({
+      type: 'info',
+      text1: 'Print invoice feature is coming soon.',
+    });
+  };
+  
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -207,7 +222,7 @@ export default function ClientsScreen() {
                 <View style={styles.ordersSection}>
                   <Text style={styles.sectionTitle}>Order History</Text>
                   {selectedClient && getClientOrders(selectedClient.id).map(order => (
-                  <View key={order.id} style={styles.orderItem}>
+                    <View key={order.id} style={styles.orderItem}>
                       <Text style={styles.orderTitle}>{order.jobTitle}</Text>
                       <Text style={styles.orderDetail}>Order #: {order.orderNumber}</Text>
                       <Text style={styles.orderDetail}>Description: {order.description}</Text>
@@ -219,12 +234,40 @@ export default function ClientsScreen() {
                       <Text style={styles.orderDetail}>Client Price: £{order.clientPrice.toFixed(2)}</Text>
                       <Text style={styles.orderDetail}>Deadline: {order.deadline ? new Date(order.deadline).toLocaleDateString() : 'N/A'}</Text>
                       <Text style={styles.orderDetail}>Date Received: {order.dateReceived ? new Date(order.dateReceived).toLocaleDateString() : 'N/A'}</Text>
-                  </View>
-              ))}
+
+                      <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Payment Status</Text>
+                      <View style={{ flexDirection: 'row', marginVertical: 8 }}>
+                      {(['incomplete', 'pending', 'paid'] as const).map((status) => (
+                        <TouchableOpacity
+                          key={status}
+                          style={[
+                            styles.statusButton,
+                            order.paymentStatus === status && styles.selectedStatusButton
+                          ]}
+                          onPress={() => handleUpdatePaymentStatus(order.id, status)}
+                        >
+                          <Text style={{
+                            color: order.paymentStatus === status ? 'white' : 'black',
+                            textTransform: 'capitalize'
+                          }}>
+                            {status}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+
+                      </View>
+
+                      <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Invoice</Text>
+                      <TouchableOpacity style={styles.printButton} onPress={() => handlePrintInvoice(order)}>
+                        <Text style={{ textAlign: 'center' }}>Print</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
                   {selectedClient && getClientOrders(selectedClient.id).length === 0 && (
                     <Text style={styles.noOrdersText}>No orders yet</Text>
                   )}
                 </View>
+
 
                 <Button
                   title="Edit Client"
@@ -481,5 +524,30 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginBottom: 2,
 },
+
+statusButton: {
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  borderWidth: 1,
+  borderColor: '#999',
+  borderRadius: 6,
+  marginHorizontal: 4,
+  backgroundColor: '#FFF',
+},
+
+selectedStatusButton: {
+  backgroundColor: '#A0522D',
+  borderColor: '#A0522D',
+},
+
+printButton: {
+  marginTop: 8,
+  paddingVertical: 8,
+  borderWidth: 1,
+  borderColor: '#999',
+  borderRadius: 6,
+  backgroundColor: '#FFF',
+},
+
 
 });
