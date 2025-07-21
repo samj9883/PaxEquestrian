@@ -31,6 +31,7 @@ export interface Order {
   hoursCompleted: number;
   deadline?: Date;
   status: 'waiting' | 'started' | 'complete';
+  paymentStatus: 'incomplete' | 'pending' | 'paid';
   createdAt: Date;
   updatedAt: Date;
 }

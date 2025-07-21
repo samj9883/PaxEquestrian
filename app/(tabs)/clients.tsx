@@ -212,6 +212,7 @@ export default function ClientsScreen() {
                       <Text style={styles.orderDetail}>Order #: {order.orderNumber}</Text>
                       <Text style={styles.orderDetail}>Description: {order.description}</Text>
                       <Text style={styles.orderDetail}>Status: {order.status}</Text>
+                      <Text style={styles.orderDetail}>Payment Status: {order.paymentStatus}</Text>
                       <Text style={styles.orderDetail}>Estimated Hours: {order.estimatedHours}</Text>
                       <Text style={styles.orderDetail}>Hours Completed: {order.hoursCompleted}</Text>
                       <Text style={styles.orderDetail}>Internal Cost: £{order.internalCost.toFixed(2)}</Text>
