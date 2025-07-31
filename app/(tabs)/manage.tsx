@@ -149,7 +149,7 @@ export default function ManageScreen() {
         status: 'waiting',
         paymentStatus:'incomplete',
         notes: [],
-
+        dateCompleted: new Date('1999-01-01'),
       };
 
       await addOrder(newOrder);

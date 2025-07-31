@@ -94,14 +94,32 @@ export default function OrdersScreen() {
 
   const handleStatusUpdate = async (status: Order['status']) => {
     if (!selectedOrder) return;
+  
     try {
-      await updateOrder(selectedOrder.id, { status });
-      setSelectedOrder({ ...selectedOrder, status });
+      const updates: Partial<Order> = { status };
+  
+      // If status is 'complete', also set dateCompleted, set payment status to pending and close modal
+      if (status === 'complete') {
+        updates.dateCompleted = new Date();
+        updates.paymentStatus = 'pending';
+      }
+  
+      await updateOrder(selectedOrder.id, updates);
+  
+      setSelectedOrder({ ...selectedOrder, ...updates });
+  
       Toast.show({ type: 'success', text1: 'Order status updated' });
+  
+      // Close modal if status was set to complete
+      if (status === 'complete') {
+        setModalVisible(false);
+        setSelectedOrder(null);
+      }
     } catch {
       Toast.show({ type: 'error', text1: 'Failed to update status' });
     }
   };
+  
 
   const handleAddHours = async () => {
     if (!selectedOrder || !hoursToAdd) return;

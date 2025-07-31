@@ -24,6 +24,7 @@ export interface Order {
   clientName: string;
   jobTitle: string;
   dateReceived: Date;
+  dateCompleted?: Date;
   description: string;
   internalCost: number;
   clientPrice: number;
