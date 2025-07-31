@@ -16,10 +16,18 @@ interface ClientCardProps {
   client: Client;
   onPress: () => void;
   orderCount: number;
+  isSettled: boolean;
 }
 
-const ClientCard: React.FC<ClientCardProps> = ({ client, onPress, orderCount }) => (
-  <TouchableOpacity style={styles.clientCard} onPress={onPress} activeOpacity={0.7}>
+const ClientCard: React.FC<ClientCardProps> = ({ client, onPress, orderCount, isSettled }) => (
+  <TouchableOpacity
+    style={[
+      styles.clientCard,
+      { backgroundColor: isSettled ? '#D4EDDA' : '#F8D7DA' }, // green if settled, red if not
+    ]}
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
     <View style={styles.clientHeader}>
       <Text style={styles.clientName}>{client.name}</Text>
       <View style={styles.orderBadge}>
@@ -31,6 +39,9 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress, orderCount }) 
     {client.address && (
       <Text style={styles.clientDetail} numberOfLines={1}>📍 {client.address}</Text>
     )}
+    <Text style={styles.clientDetail}>
+      Settlement: <Text style={{ fontWeight: 'bold' }}>{isSettled ? 'Settled ✅' : 'Unsettled ❌'}</Text>
+    </Text>
     <Text style={styles.clientDate}>Added {formatDate(client.createdAt)}</Text>
   </TouchableOpacity>
 );
@@ -38,6 +49,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress, orderCount }) 
 export default function ClientsScreen() {
   const { clients, orders, updateClient, updateOrder, loading, userReady } = useData();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUnsettledOnly, setShowUnsettledOnly] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -51,15 +63,27 @@ export default function ClientsScreen() {
     );
   }
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.phone?.includes(searchQuery)
-  );
-
-  const getOrderCount = (clientId: string) => {
+  const getOrderCount = (clientId: string): number => {
     return orders.filter(order => order.clientId === clientId).length;
   };
+
+  const isClientSettled = (clientId: string): boolean => {
+    const clientOrders = orders.filter(order => order.clientId === clientId);
+    const completedOrders = clientOrders.filter(order => order.status === 'complete');
+    const paidCompletedOrders = completedOrders.filter(order => order.paymentStatus === 'paid');
+    return completedOrders.length > 0 && paidCompletedOrders.length === completedOrders.length;
+  };
+
+  const filteredClients = clients
+    .filter(client =>
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.phone?.includes(searchQuery)
+    )
+    .filter(client => {
+      if (!showUnsettledOnly) return true;
+      return !isClientSettled(client.id);
+    });
 
   const handleClientPress = (client: Client) => {
     setSelectedClient(client);
@@ -76,6 +100,14 @@ export default function ClientsScreen() {
           placeholder="Search clients..."
           style={styles.searchInput}
         />
+        <TouchableOpacity
+          onPress={() => setShowUnsettledOnly(prev => !prev)}
+          style={styles.filterToggleButton}
+        >
+          <Text style={styles.filterToggleText}>
+            {showUnsettledOnly ? 'Show All Clients' : 'Show Only Unsettled'}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -85,6 +117,7 @@ export default function ClientsScreen() {
             client={item}
             onPress={() => handleClientPress(item)}
             orderCount={getOrderCount(item.id)}
+            isSettled={isClientSettled(item.id)}
           />
         )}
         keyExtractor={(item) => item.id}
@@ -125,10 +158,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
-  searchInput: { marginBottom: 0 },
+  searchInput: { marginBottom: 8 },
+  filterToggleButton: {
+    alignItems: 'center',
+    paddingVertical: 6,
+    marginBottom: 4,
+  },
+  filterToggleText: {
+    fontSize: 14,
+    color: '#1F2937',
+    fontWeight: '600',
+  },
   listContent: { paddingBottom: 20 },
   clientCard: {
-    backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
     marginVertical: 8,
     padding: 16,

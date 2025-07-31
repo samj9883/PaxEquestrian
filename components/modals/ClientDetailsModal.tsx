@@ -24,13 +24,7 @@ interface Props {
 
 const formatDate = (rawDate?: Date | Timestamp): string => {
   if (!rawDate) return '';
-  let date: Date;
-
-  if (rawDate instanceof Timestamp) {
-    date = rawDate.toDate();
-  } else {
-    date = rawDate;
-  }
+  const date = rawDate instanceof Timestamp ? rawDate.toDate() : rawDate;
 
   return !isNaN(date.getTime())
     ? date.toLocaleDateString(undefined, {
@@ -39,6 +33,17 @@ const formatDate = (rawDate?: Date | Timestamp): string => {
         day: 'numeric',
       })
     : '';
+};
+
+const getStatusColor = (status: Order['paymentStatus']): string => {
+  switch (status) {
+    case 'pending':
+      return '#F8D7DA';
+    case 'paid':
+      return '#D4EDDA';
+    default:
+      return '#E0E0E0';
+  }
 };
 
 const ClientDetailsModal: React.FC<Props> = ({
@@ -57,9 +62,11 @@ const ClientDetailsModal: React.FC<Props> = ({
     setEditMode(false);
   }, [client]);
 
-  const clientOrders = client
-    ? orders.filter((order) => order.clientId === client.id)
-    : [];
+  const clientOrders = client ? orders.filter((order) => order.clientId === client.id) : [];
+  const totalOrders = clientOrders.length;
+  const completedOrders = clientOrders.filter(order => order.status === 'complete');
+  const paidCompletedOrders = completedOrders.filter(order => order.paymentStatus === 'paid');
+  const isSettled = completedOrders.length > 0 && paidCompletedOrders.length === completedOrders.length;
 
   const handleSaveClient = async () => {
     if (!editedClient || !client) return;
@@ -79,44 +86,31 @@ const ClientDetailsModal: React.FC<Props> = ({
     }
   };
 
-  const handleUpdatePaymentStatus = (
-    orderId: string,
-    newStatus: 'incomplete' | 'pending' | 'paid'
-  ) => {
-    updateOrder(orderId, { paymentStatus: newStatus });
+  const markAsPaid = (orderId: string) => {
+    updateOrder(orderId, { paymentStatus: 'paid' });
   };
 
   const renderOrderItem = (order: Order) => {
     const isComplete = order.status === 'complete';
     const completedDate = isComplete ? formatDate(order.dateCompleted) : '';
+    const paymentColor = getStatusColor(order.paymentStatus);
 
     return (
-      <View key={order.id} style={styles.orderItem}>
-        <Text style={styles.orderTitle}>{order.jobTitle}</Text>
+      <View key={order.id} style={[styles.orderItem, { backgroundColor: paymentColor }]}>
+        <View style={styles.orderHeader}>
+          <Text style={styles.orderTitle}>{order.jobTitle}</Text>
+          <Text style={styles.paymentBadge}>{order.paymentStatus.toUpperCase()}</Text>
+        </View>
         <Text>Status: {order.status}</Text>
-        <Text>Payment: {order.paymentStatus}</Text>
         {completedDate && <Text>Completed: {completedDate}</Text>}
 
-        <View style={styles.statusButtonGroup}>
-          {(['incomplete', 'pending', 'paid'] as const).map((status) => (
-            <TouchableOpacity
-              key={status}
-              onPress={() => handleUpdatePaymentStatus(order.id, status)}
-              style={[
-                styles.statusButton,
-                order.paymentStatus === status && styles.selectedStatusButton,
-              ]}
-            >
-              <Text
-                style={{
-                  color: order.paymentStatus === status ? '#FFF' : '#000',
-                }}
-              >
-                {status}
-              </Text>
+        {order.paymentStatus !== 'paid' && (
+          <View style={styles.statusButtonGroup}>
+            <TouchableOpacity onPress={() => markAsPaid(order.id)} style={styles.statusButton}>
+              <Text style={{ color: '#000' }}>Mark as Paid</Text>
             </TouchableOpacity>
-          ))}
-        </View>
+          </View>
+        )}
       </View>
     );
   };
@@ -131,11 +125,15 @@ const ClientDetailsModal: React.FC<Props> = ({
         {client?.notes && <Text>Notes: {client.notes}</Text>}
       </View>
 
-      <Button
-        title="Edit Client"
-        onPress={() => setEditMode(true)}
-        style={{ marginTop: 20, marginBottom: 20 }}
-      />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Client Summary</Text>
+        <Text>Total Orders: {totalOrders}</Text>
+        <Text>Completed Orders: {completedOrders.length}</Text>
+        <Text>Paid Completed Orders: {paidCompletedOrders.length}</Text>
+        <Text style={{ color: isSettled ? 'green' : 'red' }}>Settled: {isSettled ? 'Yes' : 'No'}</Text>
+      </View>
+
+      <Button title="Edit Client" onPress={() => setEditMode(true)} style={{ marginVertical: 20 }} />
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Orders</Text>
@@ -189,11 +187,7 @@ const ClientDetailsModal: React.FC<Props> = ({
         multiline
       />
       <View style={styles.editButtons}>
-        <Button
-          title="Cancel"
-          variant="secondary"
-          onPress={() => setEditMode(false)}
-        />
+        <Button title="Cancel" variant="secondary" onPress={() => setEditMode(false)} />
         <Button title="Save" onPress={handleSaveClient} />
       </View>
     </>
@@ -247,27 +241,42 @@ const styles = StyleSheet.create({
   section: { marginBottom: 20 },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
   orderItem: {
-    backgroundColor: '#F5F5F5',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
   },
-  orderTitle: { fontWeight: '600', fontSize: 15, marginBottom: 4 },
+  orderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  paymentBadge: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    textTransform: 'uppercase',
+  },
+  orderTitle: { fontWeight: '600', fontSize: 15 },
   statusButtonGroup: {
     flexDirection: 'row',
-    marginTop: 6,
+    marginTop: 8,
   },
   statusButton: {
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     borderWidth: 1,
     borderRadius: 6,
     borderColor: '#999',
-    marginRight: 6,
-  },
-  selectedStatusButton: {
-    backgroundColor: '#A0522D',
-    borderColor: '#A0522D',
+    backgroundColor: '#FFF',
   },
   editButtons: {
     flexDirection: 'row',
