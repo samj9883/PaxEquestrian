@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import React, { useEffect, useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
 } from 'react-native';
 import Modal from 'react-native-modal';
+
 import { Order } from '../../types';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
@@ -27,6 +30,8 @@ type Props = {
   setEditedClientName: (value: string) => void;
   editedJobTitle: string;
   setEditedJobTitle: (value: string) => void;
+  editedDescription: string;
+  setEditedDescription: (value: string) => void;
   editedDeadline: string;
   setEditedDeadline: (value: string) => void;
   editedEstimatedHours: string;
@@ -47,8 +52,8 @@ export const OrderDetailsModal: React.FC<Props> = ({
   visible,
   onClose,
   selectedOrder,
-  editedClientName,
-  editedJobTitle,
+  editedDescription,
+  setEditedDescription,
   editedDeadline,
   setEditedDeadline,
   editedEstimatedHours,
@@ -65,54 +70,124 @@ export const OrderDetailsModal: React.FC<Props> = ({
   onDeleteRequest,
 }) => {
   const [section, setSection] = useState<Section>('details');
-  const [editMode, setEditMode] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setEditedDescription(selectedOrder.description || '');
+    }
+  }, [selectedOrder]);
+
+  const renderDetailsSection = () => {
+    const content = (
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.sectionContent}>
+          <Input
+            label="Job Description"
+            value={editedDescription}
+            onChangeText={setEditedDescription}
+            multiline
+            numberOfLines={3}
+          />
+
+          <View style={{ marginBottom: 16 }}>
+            <Text style={styles.label}>Deadline</Text>
+            {Platform.OS === 'web' ? (
+              <input
+                type="date"
+                value={
+                  editedDeadline
+                    ? new Date(editedDeadline).toISOString().split('T')[0]
+                    : ''
+                }
+                onChange={(e) => {
+                  const dateValue = e.target.value;
+                  if (dateValue) {
+                    setEditedDeadline(new Date(dateValue).toISOString());
+                  }
+                }}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  backgroundColor: '#fff',
+                  border: '1px solid #ccc',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  height: '48px',
+                  color: '#333',
+                  fontSize: '16px',
+                }}
+              />
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={() => setShowDatePicker(true)}
+                  style={{
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 8,
+                    backgroundColor: '#f9f9f9',
+                    borderColor: '#ccc',
+                    borderWidth: 1,
+                  }}
+                >
+                  <Text style={{ color: '#333' }}>
+                    {editedDeadline
+                      ? new Date(editedDeadline).toLocaleDateString()
+                      : 'Select deadline date'}
+                  </Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    mode="date"
+                    display="default"
+                    value={editedDeadline ? new Date(editedDeadline) : new Date()}
+                    onChange={(event, selectedDate) => {
+                      setShowDatePicker(false);
+                      if (selectedDate) {
+                        setEditedDeadline(selectedDate.toISOString());
+                      }
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </View>
+
+          <Input
+            label="Estimated Hours"
+            value={editedEstimatedHours}
+            onChangeText={setEditedEstimatedHours}
+            keyboardType="numeric"
+          />
+
+          <Button title="Save Order Details" onPress={onSave} style={{ marginTop: 16 }} />
+        </View>
+      </ScrollView>
+    );
+
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={100}
+        style={{ flex: 1 }}
+      >
+        {Platform.OS === 'web' ? content : (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            {content}
+          </TouchableWithoutFeedback>
+        )}
+      </KeyboardAvoidingView>
+    );
+  };
 
   const renderSectionContent = () => {
     switch (section) {
       case 'details':
-        return (
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={100}
-            style={{ flex: 1 }}
-          >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View style={styles.sectionContent}>
-                {/* Read-only fields */}
-                <View style={styles.readOnlyBlock}>
-                  <Text style={styles.label}>Client Name</Text>
-                  <Text style={styles.readOnlyText}>{editedClientName}</Text>
-                </View>
-                <View style={styles.readOnlyBlock}>
-                  <Text style={styles.label}>Job Title</Text>
-                  <Text style={styles.readOnlyText}>{editedJobTitle}</Text>
-                </View>
-                {selectedOrder?.description && (
-                  <View style={styles.readOnlyBlock}>
-                    <Text style={styles.label}>Job Description</Text>
-                    <Text style={styles.readOnlyText}>{selectedOrder.description}</Text>
-                  </View>
-                )}
-      
-                {/* Editable fields (always visible) */}
-                <Input
-                  label="Deadline (YYYY-MM-DD)"
-                  value={editedDeadline}
-                  onChangeText={setEditedDeadline}
-                />
-                <Input
-                  label="Estimated Hours"
-                  value={editedEstimatedHours}
-                  onChangeText={setEditedEstimatedHours}
-                  keyboardType="numeric"
-                />
-      
-                <Button title="Save Order Details" onPress={onSave} style={{ marginTop: 16 }} />
-              </View>
-            </TouchableWithoutFeedback>
-          </KeyboardAvoidingView>
-        );
-
+        return renderDetailsSection();
       case 'notes':
         return (
           <OrderNotesModal
@@ -122,7 +197,6 @@ export const OrderDetailsModal: React.FC<Props> = ({
             onAddNote={onAddNote}
           />
         );
-
       case 'status':
         return (
           <OrderStatusModal
@@ -133,7 +207,6 @@ export const OrderDetailsModal: React.FC<Props> = ({
             onStatusChange={onStatusChange}
           />
         );
-
       case 'delete':
         return (
           <ConfirmDeleteModal
@@ -141,7 +214,6 @@ export const OrderDetailsModal: React.FC<Props> = ({
             onConfirm={onDeleteRequest}
           />
         );
-
       default:
         return null;
     }
@@ -155,10 +227,9 @@ export const OrderDetailsModal: React.FC<Props> = ({
       useNativeDriver
       hideModalContentWhileAnimating
       style={styles.modalWrapper}
-      avoidKeyboard={true}
+      avoidKeyboard
     >
       <View style={styles.modalContainer}>
-        {/* Header */}
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle}>
             {selectedOrder?.clientName} | {selectedOrder?.jobTitle}
@@ -168,7 +239,6 @@ export const OrderDetailsModal: React.FC<Props> = ({
           </TouchableOpacity>
         </View>
 
-        {/* Tabs */}
         <View style={styles.tabBar}>
           {(['details', 'notes', 'status', 'delete'] as Section[]).map((tab) => (
             <TabButton
@@ -180,7 +250,6 @@ export const OrderDetailsModal: React.FC<Props> = ({
           ))}
         </View>
 
-        {/* Section Body */}
         {renderSectionContent()}
       </View>
     </Modal>
@@ -268,33 +337,14 @@ const styles = StyleSheet.create({
     padding: 20,
     flexGrow: 1,
   },
-  readOnlyBlock: {
-    marginBottom: 12,
+  scrollContent: {
+    flexGrow: 1,
   },
   label: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  readOnlyText: {
     fontSize: 16,
-    color: '#1F2937',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  editToggle: {
-    marginTop: 16,
-    alignSelf: 'center',
-  },
-  editToggleText: {
-    fontSize: 14,
-    color: '#3B82F6',
-  },
-  editButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
-    gap: 12,
+    fontWeight: '600',
+    color: '#4A4A4A',
+    marginBottom: 8,
+    fontFamily: Platform.OS === 'web' ? 'Space Mono, monospace' : undefined,
   },
 });

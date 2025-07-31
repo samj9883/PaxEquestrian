@@ -31,6 +31,8 @@ export default function OrdersScreen() {
   const [editedJobTitle, setEditedJobTitle] = useState('');
   const [editedDeadline, setEditedDeadline] = useState('');
   const [editedEstimatedHours, setEditedEstimatedHours] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
+
 
   const activeOrders = orders
     .filter((order) => order.status !== 'complete')
@@ -50,6 +52,7 @@ export default function OrdersScreen() {
     setSelectedOrder(order);
     setEditedClientName(order.clientName);
     setEditedJobTitle(order.jobTitle);
+    setEditedDescription(order.description || ''); 
     setEditedDeadline(order.deadline ? order.deadline.toISOString().split('T')[0] : '');
     setEditedEstimatedHours(order.estimatedHours.toString());
     setOrderNotes(order.notes || []);
@@ -62,6 +65,7 @@ export default function OrdersScreen() {
       await updateOrder(selectedOrder.id, {
         clientName: editedClientName,
         jobTitle: editedJobTitle,
+        description: editedDescription, 
         deadline: editedDeadline ? new Date(editedDeadline) : undefined,
         estimatedHours: parseFloat(editedEstimatedHours) || 0,
         notes: orderNotes,
@@ -173,6 +177,8 @@ export default function OrdersScreen() {
         setEditedClientName={setEditedClientName}
         editedJobTitle={editedJobTitle}
         setEditedJobTitle={setEditedJobTitle}
+        editedDescription={editedDescription}                             
+        setEditedDescription={setEditedDescription}                       
         editedDeadline={editedDeadline}
         setEditedDeadline={setEditedDeadline}
         editedEstimatedHours={editedEstimatedHours}
@@ -188,6 +194,7 @@ export default function OrdersScreen() {
         onStatusChange={handleStatusUpdate}
         onDeleteRequest={confirmDeleteOrder}
       />
+
     </View>
   );
 }
