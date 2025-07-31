@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Order } from '../types';
 import { formatCurrency, formatDate } from '../utils/completionCalculator';
+
 
 interface OrderCardProps {
   order: Order;
@@ -44,17 +45,31 @@ export const OrderCard: React.FC<OrderCardProps> = ({
 
   const progressPercentage = (order.hoursCompleted / order.estimatedHours) * 100;
   const remainingHours = Math.max(0, order.estimatedHours - order.hoursCompleted);
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768; // adjust as needed
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.header}>
-        <Text style={styles.clientName}>{order.clientName} | {order.jobTitle}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
-          <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
-        </View>
-      </View>
+      
 
-      <Text style={styles.orderNumber}>{order.orderNumber}</Text>
+      <View style={styles.header}>
+          <Text style={styles.clientName}>{order.clientName} | {order.jobTitle}</Text>
+        </View>
+
+        <Text style={styles.orderNumber}>{order.orderNumber}</Text>
+
+        {isMobile && (
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status), alignSelf: 'flex-start', marginBottom: 8 }]}>
+            <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
+          </View>
+        )}
+
+        {!isMobile && (
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status), position: 'absolute', top: 16, right: 16 }]}>
+            <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
+          </View>
+        )}
+
       <Text style={styles.description} numberOfLines={2}>
         {order.description}
       </Text>
@@ -134,6 +149,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
+    position: 'relative',
   },
   header: {
     flexDirection: 'row',
@@ -253,4 +269,6 @@ const styles = StyleSheet.create({
   clientPrice: {
     color: '#059669',
   },
+  
+  
 });
