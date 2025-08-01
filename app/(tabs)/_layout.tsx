@@ -1,13 +1,21 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 export default function TabLayout() {
+  const { width } = useWindowDimensions();
+  const isMobileWeb = Platform.OS === 'web' && width <= 480;
+
+  const dynamicTabBarStyle = {
+    ...styles.tabBar,
+    height: isMobileWeb ? 80 : styles.tabBar.height,
+  };
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#8B4513',
         tabBarInactiveTintColor: '#9CA3AF',
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: dynamicTabBarStyle,
         headerShown: true,
         headerStyle: {
           backgroundColor: '#8B4513',
@@ -22,7 +30,7 @@ export default function TabLayout() {
         name="orders"
         options={{
           title: 'Orders',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <View style={[styles.icon, { backgroundColor: color }]} />
           ),
           headerTitle: 'Orders',
@@ -32,7 +40,7 @@ export default function TabLayout() {
         name="estimation"
         options={{
           title: 'Timeline',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <View style={[styles.icon, { backgroundColor: color }]} />
           ),
           headerTitle: 'Completion Timeline',
@@ -42,7 +50,7 @@ export default function TabLayout() {
         name="clients"
         options={{
           title: 'Clients',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <View style={[styles.icon, { backgroundColor: color }]} />
           ),
           headerTitle: 'Clients',
@@ -52,7 +60,7 @@ export default function TabLayout() {
         name="manage"
         options={{
           title: 'Manage',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <View style={[styles.icon, { backgroundColor: color }]} />
           ),
           headerTitle: 'Add Entry',
@@ -69,7 +77,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#E5E7EB',
     paddingTop: 8,
     paddingBottom: 8,
-    height: 60,
+    height: 60, // default height
   },
   icon: {
     width: 20,
