@@ -6,12 +6,14 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { Client, Order } from '../../types';
+import { generateInvoicePDF } from '../../utils/PDFprint';
+
 
 interface Props {
   visible: boolean;
@@ -105,12 +107,19 @@ const ClientDetailsModal: React.FC<Props> = ({
         {completedDate && <Text>Completed: {completedDate}</Text>}
 
         {order.paymentStatus !== 'paid' && (
-          <View style={styles.statusButtonGroup}>
+        <View style={styles.statusButtonGroup}>
             <TouchableOpacity onPress={() => markAsPaid(order.id)} style={styles.statusButton}>
-              <Text style={{ color: '#000' }}>Mark as Paid</Text>
+            <Text style={{ color: '#000' }}>Mark as Paid</Text>
             </TouchableOpacity>
-          </View>
+
+            <TouchableOpacity onPress={() => client && generateInvoicePDF(order, client)} style={styles.statusButton}>
+                <Text style={{ color: '#000' }}>View Invoice</Text>
+            </TouchableOpacity>
+
+        </View>
         )}
+
+
       </View>
     );
   };
