@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice - Pax Equestrian</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      padding: 60px;
+      line-height: 1.6;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 60px;
+    }
+
+    .header-left {
+      flex: 1;
+    }
+
+    .header-left h1 {
+      font-size: 36px;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    .header-left .date {
+      color: #f7c948;
+      margin-top: 6px;
+      font-weight: bold;
+    }
+
+    .header-right img {
+      max-height: 100px;
+    }
+
+    .address-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .address {
+      flex: 1;
+    }
+
+    .job-section {
+      border-top: 1px solid #888;
+      border-bottom: 1px solid #888;
+      padding: 30px 0;
+      margin-bottom: 30px;
+    }
+
+    .label {
+      color: #f7c948;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    .total-section {
+      font-size: 16px;
+      margin-top: 30px;
+    }
+
+    .total-section .label {
+      font-weight: bold;
+      color: #f7c948;
+    }
+
+    .footer {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <h1>INVOICE</h1>
+      <div class="date">2nd August 2025</div>
+    </div>
+    <div class="header-right">
+      <img src="https://firebasestorage.googleapis.com/v0/b/paxequestrian-e455d.firebasestorage.app/o/Group%209.png?alt=media&token=941bd402-fde4-41ca-9f4e-9c538cb62dd5" alt="Pax Equestrian Logo" />
+    </div>
+  </div>
+
+  <div class="address-row">
+    <div class="address">
+      <div><strong>To:</strong></div>
+      <div>Client Name</div>
+      <div>Address 1</div>
+      <div>number</div>
+    </div>
+    <div class="address">
+      <div><strong>Office Address</strong></div>
+      <div>Pax Cottage</div>
+      <div>Worcestershire</div>
+      <div>HR1 6QH</div>
+      <div>07970 684703</div>
+    </div>
+  </div>
+
+  <div class="job-section">
+    <div class="label">Job Title</div>
+    <div>Example job title</div>
+
+    <div class="label">Job Description</div>
+    <div>Example job description</div>
+  </div>
+
+  <div class="total-section">
+    <div class="label">Total Cost: £100</div>
+    <div class="footer">
+      Payable To:<br />
+      Helen Jones<br />
+      payment details .....
+    </div>
+  </div>
+
+</body>
+</html>

@@ -15,100 +15,150 @@ export const generateInvoicePDF = (order: Order, client: Client) => {
     'https://firebasestorage.googleapis.com/v0/b/paxequestrian-e455d.firebasestorage.app/o/Group%209.png?alt=media&token=941bd402-fde4-41ca-9f4e-9c538cb62dd5';
 
   const htmlContent = `
-  <html>
-    <head>
-      <meta charset="utf-8" />
-      <title>Invoice - ${order.jobTitle}</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          padding: 40px;
-          color: #ffffff;
-          background: #000000;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-        .header img {
-          max-height: 60px;
-          margin-bottom: 10px;
-        }
-        .header h1 {
-          margin: 0;
-          font-size: 28px;
-        }
-        .section-title {
-          font-size: 18px;
-          font-weight: bold;
-          margin-bottom: 10px;
-          border-bottom: 1px solid #888;
-          padding-bottom: 4px;
-        }
-        .info-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 30px;
-        }
-        .info-column {
-          width: 48%;
-        }
-        .company-details {
-          margin-bottom: 40px;
-        }
-        .footer {
-          margin-top: 60px;
-          font-style: italic;
-          font-size: 12px;
-          text-align: center;
-        }
-        @media print {
-          body { zoom: 90%; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <img src="${logoUrl}" alt="Company Logo" />
-        <h1>Invoice</h1>
-        <div>Invoice Date: ${today}</div>
-      </div>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Invoice - ${order.jobTitle}</title>
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        font-family: 'Arial', sans-serif;
+        padding: 60px;
+        line-height: 1.6;
+      }
 
-      <div class="company-details">
-        <div class="section-title">Your Business Info</div>
-        <div><strong>Business Name:</strong> Group9 Digital</div>
-        <div><strong>Email:</strong> info@group9digital.co.uk</div>
-        <div><strong>Phone:</strong> +44 1234 567890</div>
-        <div><strong>Bank:</strong> Barclays UK</div>
-        <div><strong>Account Number:</strong> 12345678</div>
-        <div><strong>Sort Code:</strong> 12-34-56</div>
-        <div><strong>IBAN:</strong> GB00BARC12345612345678</div>
-      </div>
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 60px;
+      }
 
-      <div class="info-row">
-        <div class="info-column">
-          <div class="section-title">Client Info</div>
-          <div><strong>Name:</strong> ${client.name}</div>
-          <div><strong>Email:</strong> ${client.email ?? 'N/A'}</div>
-          <div><strong>Phone:</strong> ${client.phone ?? 'N/A'}</div>
-          <div><strong>Address:</strong> ${client.address ?? 'N/A'}</div>
-        </div>
-        <div class="info-column">
-          <div class="section-title">Order Info</div>
-          <div><strong>Job Title:</strong> ${order.jobTitle}</div>
-          <div><strong>Description:</strong> ${order.description}</div>
-          <div><strong>Status:</strong> ${order.status}</div>
-          <div><strong>Payment Status:</strong> ${order.paymentStatus}</div>
-          <div><strong>Completed:</strong> ${formatDate(order.dateCompleted)}</div>
-          <div><strong>Deadline:</strong> ${formatDate(order.deadline)}</div>
-          <div><strong>Est. Hours:</strong> ${order.estimatedHours ?? 'N/A'}</div>
-        </div>
-      </div>
+      .header-left {
+        flex: 1;
+      }
 
+      .header-left h1 {
+        font-size: 36px;
+        margin: 0;
+        font-weight: bold;
+      }
+
+      .header-left .date {
+        color: #f7c948;
+        margin-top: 6px;
+        font-weight: bold;
+      }
+
+      .header-right img {
+        height: 200px;
+      }
+
+      .address-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 40px;
+        }
+
+        .address {
+        flex: 1;
+        }
+
+        .address:first-child {
+        text-align: left;
+        }
+
+        .address:last-child {
+        text-align: right;
+        }
+
+
+      .job-section {
+        border-top: 1px solid #888;
+        border-bottom: 1px solid #888;
+        padding: 30px 0;
+        margin-bottom: 30px;
+      }
+
+      .label {
+        color: #f7c948;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-size: 14px;
+        margin-top: 20px;
+      }
+
+      .total-section {
+        font-size: 16px;
+        margin-top: 30px;
+      }
+
+      .total-section .label {
+        font-weight: bold;
+        color: #f7c948;
+      }
+
+      .footer {
+        margin-top: 40px;
+      }
+
+      @media print {
+        body { zoom: 90%; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="header">
+      <div class="header-left">
+        <h1>INVOICE</h1>
+        <div class="date">${today}</div>
+      </div>
+      <div class="header-right">
+        <img src="${logoUrl}" alt="Pax Equestrian Logo" />
+      </div>
+    </div>
+
+    <div class="address-row">
+      <div class="address">
+        <div><strong>To:</strong></div>
+        <div>${client.name}</div>
+        <div>${client.address ?? 'Address not provided'}</div>
+        <div>${client.phone ?? 'Phone not provided'}</div>
+      </div>
+      <div class="address">
+        <div><strong>Office Address</strong></div>
+        <div>Pax Cottage</div>
+        <div>Herefordshire</div>
+        <div>HR3 6QH</div>
+        <div>07970 684703</div>
+      </div>
+    </div>
+
+    <div class="job-section">
+      <div class="label">Job Title</div>
+      <div>${order.jobTitle}</div>
+
+      <div class="label">Job Description</div>
+      <div>${order.description}</div>
+
+
+    </div>
+
+    <div class="total-section">
+      <div class="label">Total Cost: £${order.clientPrice}</div>
       <div class="footer">
-        Thank you for your business. Please print or save this invoice for your records.
+        Payable To:<br />
+        Helen Jones<br />
+        payment details .....
       </div>
-    </body>
+    </div>
+
+  </body>
   </html>
   `;
 
