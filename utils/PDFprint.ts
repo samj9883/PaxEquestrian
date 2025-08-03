@@ -12,7 +12,7 @@ export const generateInvoicePDF = (order: Order, client: Client) => {
   const today = new Date().toLocaleDateString();
 
   const logoUrl =
-    'https://firebasestorage.googleapis.com/v0/b/paxequestrian-e455d.firebasestorage.app/o/Group%209.png?alt=media&token=941bd402-fde4-41ca-9f4e-9c538cb62dd5';
+    'https://firebasestorage.googleapis.com/v0/b/paxequestrian-e455d.firebasestorage.app/o/Group%2016.png?alt=media&token=3f9b9101-6daf-4616-9929-5a9bd14aad31';
 
   const htmlContent = `
   <!DOCTYPE html>
@@ -20,13 +20,15 @@ export const generateInvoicePDF = (order: Order, client: Client) => {
   <head>
     <meta charset="UTF-8" />
     <title>Invoice - ${order.jobTitle}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
       body {
-        background-color: #000;
-        color: #fff;
-        font-family: 'Arial', sans-serif;
+        background-color: #fff;
+        color: #000;
+        font-family: 'Inter', sans-serif;
         padding: 60px;
-        line-height: 1.6;
+        line-height: 1.7;
+        font-size: 18px;
       }
 
       .header {
@@ -41,69 +43,82 @@ export const generateInvoicePDF = (order: Order, client: Client) => {
       }
 
       .header-left h1 {
-        font-size: 36px;
+        font-size: 44px;
         margin: 0;
-        font-weight: bold;
+        font-weight: 700;
+        letter-spacing: 1px;
       }
 
       .header-left .date {
         color: #f7c948;
-        margin-top: 6px;
-        font-weight: bold;
+        margin-top: 10px;
+        font-weight: 600;
+        font-size: 18px;
       }
 
       .header-right img {
-        height: 200px;
+        height: 180px;
       }
 
       .address-row {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 40px;
-        }
+        margin-bottom: 50px;
+      }
 
-        .address {
+      .address {
         flex: 1;
-        }
+        font-size: 18px;
+        line-height: 1.6;
+      }
 
-        .address:first-child {
+      .address:first-child {
         text-align: left;
-        }
+      }
 
-        .address:last-child {
+      .address:last-child {
         text-align: right;
-        }
+      }
 
+      .address strong {
+        color: #f7c948;
+        font-weight: 600;
+        font-size: 19px;
+      }
 
       .job-section {
-        border-top: 1px solid #888;
-        border-bottom: 1px solid #888;
-        padding: 30px 0;
-        margin-bottom: 30px;
+        border-top: 2px solid #ccc;
+        border-bottom: 2px solid #ccc;
+        padding: 40px 0;
+        margin-bottom: 40px;
       }
 
       .label {
         color: #f7c948;
-        font-weight: bold;
+        font-weight: 600;
         letter-spacing: 1px;
         text-transform: uppercase;
-        font-size: 14px;
-        margin-top: 20px;
+        font-size: 17px;
+        margin-top: 24px;
+        margin-bottom: 6px;
       }
 
       .total-section {
-        font-size: 16px;
-        margin-top: 30px;
+        font-size: 18px;
+        margin-top: 40px;
       }
 
       .total-section .label {
-        font-weight: bold;
+        font-weight: 600;
         color: #f7c948;
+        font-size: 18px;
       }
 
       .footer {
-        margin-top: 40px;
+        margin-top: 30px;
+        font-size: 17px;
+        line-height: 1.5;
       }
 
       @media print {
@@ -145,8 +160,6 @@ export const generateInvoicePDF = (order: Order, client: Client) => {
 
       <div class="label">Job Description</div>
       <div>${order.description}</div>
-
-
     </div>
 
     <div class="total-section">
