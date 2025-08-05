@@ -46,18 +46,29 @@ type Props = {
   onAddHours: () => void;
   onStatusChange: (status: Order['status']) => void;
   onDeleteRequest: () => void;
+  editedCost: string;
+  setEditedCost: (value: string) => void;
+  editedClientPrice: string;
+  setEditedClientPrice: (value: string) => void;
+
 };
 
 export const OrderDetailsModal: React.FC<Props> = ({
   visible,
   onClose,
   selectedOrder,
+  editedJobTitle,
+  setEditedJobTitle,
   editedDescription,
   setEditedDescription,
   editedDeadline,
   setEditedDeadline,
   editedEstimatedHours,
   setEditedEstimatedHours,
+  editedCost,
+  setEditedCost,
+  editedClientPrice,
+  setEditedClientPrice,
   onSave,
   onAddNote,
   notesInput,
@@ -69,14 +80,31 @@ export const OrderDetailsModal: React.FC<Props> = ({
   onStatusChange,
   onDeleteRequest,
 }) => {
+
   const [section, setSection] = useState<Section>('details');
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
-    if (selectedOrder) {
-      setEditedDescription(selectedOrder.description || '');
-    }
-  }, [selectedOrder]);
+  if (selectedOrder) {
+    setEditedDescription(selectedOrder.description || '');
+    setEditedEstimatedHours(
+      selectedOrder.estimatedHours != null
+        ? selectedOrder.estimatedHours.toString()
+        : ''
+    );
+    setEditedCost(
+      selectedOrder.internalCost != null
+        ? selectedOrder.internalCost.toString()
+        : ''
+    );
+    setEditedClientPrice(
+      selectedOrder.clientPrice != null
+        ? selectedOrder.clientPrice.toString()
+        : ''
+    );
+  }
+}, [selectedOrder]);
+
 
   const renderDetailsSection = () => {
     const content = (
@@ -85,6 +113,13 @@ export const OrderDetailsModal: React.FC<Props> = ({
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.sectionContent}>
+        <Input
+          label="Job Title"
+          value={editedJobTitle}
+          onChangeText={setEditedJobTitle}
+        />
+
+          
           <Input
             label="Job Description"
             value={editedDescription}
@@ -161,6 +196,20 @@ export const OrderDetailsModal: React.FC<Props> = ({
             label="Estimated Hours"
             value={editedEstimatedHours}
             onChangeText={setEditedEstimatedHours}
+            keyboardType="numeric"
+          />
+
+          <Input
+            label="Cost (£)"
+            value={editedCost}
+            onChangeText={setEditedCost}
+            keyboardType="numeric"
+          />
+
+          <Input
+            label="Client Price (£)"
+            value={editedClientPrice}
+            onChangeText={setEditedClientPrice}
             keyboardType="numeric"
           />
 

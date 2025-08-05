@@ -33,6 +33,10 @@ export default function OrdersScreen() {
   const [editedEstimatedHours, setEditedEstimatedHours] = useState('');
   const [editedDescription, setEditedDescription] = useState('');
 
+  const [editedCost, setEditedCost] = useState('');
+  const [editedClientPrice, setEditedClientPrice] = useState('');
+
+
 
   const activeOrders = orders
     .filter((order) => order.status !== 'complete')
@@ -52,12 +56,15 @@ export default function OrdersScreen() {
     setSelectedOrder(order);
     setEditedClientName(order.clientName);
     setEditedJobTitle(order.jobTitle);
-    setEditedDescription(order.description || ''); 
+    setEditedDescription(order.description || '');
     setEditedDeadline(order.deadline ? order.deadline.toISOString().split('T')[0] : '');
     setEditedEstimatedHours(order.estimatedHours.toString());
+    setEditedCost(order.internalCost?.toString() || '');         
+    setEditedClientPrice(order.clientPrice?.toString() || '');   
     setOrderNotes(order.notes || []);
     setModalVisible(true);
   };
+  
 
   const handleUpdateOrderDetails = async () => {
     if (!selectedOrder) return;
@@ -65,9 +72,11 @@ export default function OrdersScreen() {
       await updateOrder(selectedOrder.id, {
         clientName: editedClientName,
         jobTitle: editedJobTitle,
-        description: editedDescription, 
+        description: editedDescription,
         deadline: editedDeadline ? new Date(editedDeadline) : undefined,
         estimatedHours: parseFloat(editedEstimatedHours) || 0,
+        internalCost: parseFloat(editedCost) || 0,
+        clientPrice: parseFloat(editedClientPrice) || 0,
         notes: orderNotes,
       });
       setModalVisible(false);
@@ -76,6 +85,7 @@ export default function OrdersScreen() {
       Toast.show({ type: 'error', text1: 'Failed to update order details' });
     }
   };
+  
 
   const handleAddNote = async () => {
     if (!selectedOrder || !notesInput.trim()) return;
@@ -195,12 +205,16 @@ export default function OrdersScreen() {
         setEditedClientName={setEditedClientName}
         editedJobTitle={editedJobTitle}
         setEditedJobTitle={setEditedJobTitle}
-        editedDescription={editedDescription}                             
-        setEditedDescription={setEditedDescription}                       
+        editedDescription={editedDescription}
+        setEditedDescription={setEditedDescription}
         editedDeadline={editedDeadline}
         setEditedDeadline={setEditedDeadline}
         editedEstimatedHours={editedEstimatedHours}
         setEditedEstimatedHours={setEditedEstimatedHours}
+        editedCost={editedCost}
+        setEditedCost={setEditedCost}
+        editedClientPrice={editedClientPrice}
+        setEditedClientPrice={setEditedClientPrice}
         onSave={handleUpdateOrderDetails}
         onAddNote={handleAddNote}
         notesInput={notesInput}
@@ -212,6 +226,7 @@ export default function OrdersScreen() {
         onStatusChange={handleStatusUpdate}
         onDeleteRequest={confirmDeleteOrder}
       />
+
 
     </View>
   );

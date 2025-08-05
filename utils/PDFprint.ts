@@ -168,7 +168,7 @@ export const generateInvoicePDF = (order: Order, client: Client) => {
           <div><strong>Office Address</strong></div>
           <div>Pax Cottage</div>
           <div>Woonton</div>
-          <div>Herefordshire</div>
+          <div>Hereford</div>
           <div>HR3 6QH</div>
           <div>07970 684703</div>
           <div>paxequestrian@hotmail.com</div>
