@@ -25,6 +25,7 @@ interface Props {
   orders: Order[];
   updateClient: (id: string, data: Partial<Client>) => Promise<void>;
   updateOrder: (id: string, data: Partial<Order>) => Promise<void>;
+  deleteOrder: (id: string) => Promise<void>;
 }
 
 const formatDate = (rawDate?: Date | Timestamp): string => {
@@ -50,6 +51,7 @@ const ClientDetailsModal: React.FC<Props> = ({
   orders,
   updateClient,
   updateOrder,
+  deleteOrder,
 }) => {
   const [editMode, setEditMode] = useState(false);
   const [editedClient, setEditedClient] = useState<Client | null>(null);
@@ -190,16 +192,17 @@ const ClientDetailsModal: React.FC<Props> = ({
   };
 
   const confirmDeleteOrder = async () => {
-    if (!selectedOrder) return;
-    try {
-      await updateOrder(selectedOrder.id, {}); // Soft delete or modify if using deleted flag
-      setOrderModalVisible(false);
-      setSelectedOrder(null);
-      Toast.show({ type: 'success', text1: 'Order deleted' });
-    } catch {
-      Toast.show({ type: 'error', text1: 'Failed to delete order' });
-    }
-  };
+  if (!selectedOrder) return;
+  try {
+    await deleteOrder(selectedOrder.id); // ✅ now actually deletes
+    setOrderModalVisible(false);
+    setSelectedOrder(null);
+    Toast.show({ type: 'success', text1: 'Order deleted' });
+  } catch {
+    Toast.show({ type: 'error', text1: 'Failed to delete order' });
+  }
+};
+
 
   const renderOrderItem = (order: Order) => {
     const completedDate = order.status === 'complete' ? formatDate(order.dateCompleted) : '';

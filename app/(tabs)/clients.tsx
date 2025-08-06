@@ -47,7 +47,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onPress, orderCount, is
 );
 
 export default function ClientsScreen() {
-  const { clients, orders, updateClient, updateOrder, loading, userReady } = useData();
+  const { clients, orders, updateClient, updateOrder, loading, userReady, deleteOrder } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [showUnsettledOnly, setShowUnsettledOnly] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -143,6 +143,8 @@ export default function ClientsScreen() {
         orders={orders}
         updateClient={updateClient}
         updateOrder={updateOrder}
+        deleteOrder={deleteOrder}
+
       />
     </View>
   );
