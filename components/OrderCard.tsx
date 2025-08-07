@@ -3,12 +3,12 @@ import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'r
 import { Order } from '../types';
 import { formatCurrency, formatDate } from '../utils/completionCalculator';
 
-
 interface OrderCardProps {
   order: Order;
   onPress: () => void;
   showEstimatedCompletion?: boolean;
   estimatedDate?: Date;
+  isUrgent?: boolean;
 }
 
 export const OrderCard: React.FC<OrderCardProps> = ({
@@ -16,59 +16,61 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   onPress,
   showEstimatedCompletion = false,
   estimatedDate,
+  isUrgent = false,
 }) => {
-  const getStatusColor = (status: Order['status']) => {
-    switch (status) {
-      case 'waiting':
-        return '#F59E0B';
-      case 'started':
-        return '#3B82F6';
-      case 'complete':
-        return '#10B981';
-      default:
-        return '#6B7280';
-    }
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+
+  const statusColorMap: Record<Order['status'], string> = {
+    waiting: '#F59E0B',
+    started: '#3B82F6',
+    complete: '#10B981',
+    deleted: '#6B7280',
   };
 
-  const getStatusText = (status: Order['status']) => {
-    switch (status) {
-      case 'waiting':
-        return 'Waiting';
-      case 'started':
-        return 'In Progress';
-      case 'complete':
-        return 'Complete';
-      default:
-        return status;
-    }
+  const statusTextMap: Record<Order['status'], string> = {
+    waiting: 'Waiting',
+    started: 'In Progress',
+    complete: 'Complete',
+    deleted: 'Deleted',
   };
 
   const progressPercentage = (order.hoursCompleted / order.estimatedHours) * 100;
   const remainingHours = Math.max(0, order.estimatedHours - order.hoursCompleted);
-  const { width } = useWindowDimensions();
-  const isMobile = width < 768; // adjust as needed
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      
-
+    <TouchableOpacity
+      style={[styles.card, isUrgent && styles.urgentCard]}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <View style={styles.header}>
-          <Text style={styles.clientName}>{order.clientName} | {order.jobTitle}</Text>
-        </View>
+        <Text style={styles.clientName}>
+          {order.clientName} | {order.jobTitle}
+        </Text>
+      </View>
 
-        <Text style={styles.orderNumber}>{order.orderNumber}</Text>
+      {isUrgent && (
+        <Text style={styles.urgentBadge}>⚠️ Urgent: Deadline-priority</Text>
+      )}
 
-        {isMobile && (
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status), alignSelf: 'flex-start', marginBottom: 8 }]}>
-            <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
-          </View>
-        )}
+      <Text style={styles.orderNumber}>{order.orderNumber}</Text>
 
-        {!isMobile && (
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status), position: 'absolute', top: 16, right: 16 }]}>
-            <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
-          </View>
-        )}
+      <View
+        style={[
+          styles.statusBadge,
+          {
+            backgroundColor: statusColorMap[order.status],
+            alignSelf: isMobile ? 'flex-start' : 'auto',
+            position: isMobile ? 'relative' : 'absolute',
+            top: isMobile ? undefined : 16,
+            right: isMobile ? undefined : 16,
+            marginBottom: isMobile ? 8 : 0,
+          },
+        ]}
+      >
+        <Text style={styles.statusText}>{statusTextMap[order.status]}</Text>
+      </View>
 
       <Text style={styles.description} numberOfLines={2}>
         {order.description}
@@ -82,10 +84,12 @@ export const OrderCard: React.FC<OrderCardProps> = ({
         {order.deadline && (
           <View style={styles.dateContainer}>
             <Text style={styles.dateLabel}>Deadline</Text>
-            <Text style={[
-              styles.dateValue,
-              order.deadline < new Date() && order.status !== 'complete' && styles.overdue
-            ]}>
+            <Text
+              style={[
+                styles.dateValue,
+                order.deadline < new Date() && order.status !== 'complete' && styles.overdue,
+              ]}
+            >
               {formatDate(order.deadline)}
             </Text>
           </View>
@@ -104,16 +108,11 @@ export const OrderCard: React.FC<OrderCardProps> = ({
           <Text style={styles.progressText}>
             {order.hoursCompleted}h / {order.estimatedHours}h completed
           </Text>
-          <Text style={styles.remainingText}>
-            {remainingHours}h remaining
-          </Text>
+          <Text style={styles.remainingText}>{remainingHours}h remaining</Text>
         </View>
         <View style={styles.progressBar}>
-          <View 
-            style={[
-              styles.progressFill, 
-              { width: `${Math.min(progressPercentage, 100)}%` }
-            ]} 
+          <View
+            style={[styles.progressFill, { width: `${Math.min(progressPercentage, 100)}%` }]}
           />
         </View>
       </View>
@@ -142,14 +141,22 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     marginHorizontal: 16,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
     position: 'relative',
+  },
+  urgentCard: {
+    borderColor: '#DC2626',
+    borderWidth: 2,
+    backgroundColor: '#FFF5F5',
+  },
+  urgentBadge: {
+    color: '#DC2626',
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 6,
   },
   header: {
     flexDirection: 'row',
@@ -157,12 +164,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  clientName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
   orderNumber: {
     fontSize: 16,
     fontWeight: '600',
     color: '#8B4513',
     marginBottom: 4,
-
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -173,11 +184,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
-  },
-  clientName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
   },
   description: {
     fontSize: 14,
@@ -269,6 +275,4 @@ const styles = StyleSheet.create({
   clientPrice: {
     color: '#059669',
   },
-  
-  
 });

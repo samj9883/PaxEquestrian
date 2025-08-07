@@ -50,4 +50,5 @@ export interface EstimatedCompletion {
   orderId: string;
   estimatedDate: Date;
   remainingHours: number;
+  isUrgent?: boolean;
 }

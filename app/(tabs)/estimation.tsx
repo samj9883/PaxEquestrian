@@ -63,18 +63,22 @@ export default function EstimationScreen() {
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {activeOrders.map((order) => {
-          const estimation = estimations.find(est => est.orderId === order.id);
+      {estimations.map((estimation) => {
+          const order = orders.find(order => order.id === estimation.orderId);
+          if (!order) return null;
+
           return (
             <OrderCard
               key={order.id}
               order={order}
               onPress={() => {}}
               showEstimatedCompletion={true}
-              estimatedDate={estimation?.estimatedDate}
+              estimatedDate={estimation.estimatedDate}
+              isUrgent={estimation.isUrgent}
             />
           );
         })}
+
 
         {activeOrders.length === 0 && (
           <View style={styles.emptyContainer}>
