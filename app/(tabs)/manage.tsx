@@ -1,13 +1,13 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 import Toast from 'react-native-toast-message';
@@ -231,7 +231,7 @@ export default function ManageScreen() {
   if (!userReady) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#8B4513" />
+        <ActivityIndicator size="large" color="#141414" />
         <Text style={styles.loadingText}>Checking authentication...</Text>
       </View>
     );
@@ -240,7 +240,7 @@ export default function ManageScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#8B4513" />
+        <ActivityIndicator size="large" color="#141414" />
         <Text style={styles.loadingText}>Loading data...</Text>
       </View>
     );
@@ -529,7 +529,7 @@ export default function ManageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5DC',
+    backgroundColor: '##141414',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#8B4513',
+    borderBottomColor: '#141414',
   },
   tabText: {
     fontSize: 16,
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   activeTabText: {
-    color: '#8B4513',
+    color: '#141414',
     fontWeight: '600',
   },
   scrollView: {
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F5DC',
+    backgroundColor: '##141414',
   },
   loadingText: {
     marginTop: 12,

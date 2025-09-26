@@ -1,12 +1,12 @@
 // components/modals/EstimationModal.tsx
 import { useEffect, useState } from 'react';
 import {
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useData } from '../../contexts/DataContext';
@@ -54,7 +54,7 @@ export const EstimationModal: React.FC<Props> = ({ visible, onClose }) => {
     const result: Record<string, any> = {};
     preferences.customDaysOff.forEach(date => {
       const key = date.toISOString().split('T')[0];
-      result[key] = { selected: true, selectedColor: '#8B4513' };
+      result[key] = { selected: true, selectedColor: '#141414' };
     });
     return result;
   };
@@ -195,8 +195,8 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
   },
   dayButtonSelected: {
-    backgroundColor: '#8B4513',
-    borderColor: '#8B4513',
+    backgroundColor: '#141414',
+    borderColor: '#141414',
   },
   dayButtonText: {
     fontSize: 14,

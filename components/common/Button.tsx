@@ -51,12 +51,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   primary: {
-    backgroundColor: '#8B4513',
+    backgroundColor: '#141414',
   },
   secondary: {
-    backgroundColor: '#F5F5DC',
+    backgroundColor: '##141414',
     borderWidth: 1,
-    borderColor: '#8B4513',
+    borderColor: '#141414',
   },
   danger: {
     backgroundColor: '#DC2626',
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   secondaryText: {
-    color: '#8B4513',
+    color: '#141414',
   },
   dangerText: {
     color: '#FFFFFF',

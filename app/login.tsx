@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -54,10 +55,19 @@ export default function Login() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
+            <Image
+                source={{
+                  uri: 'https://firebasestorage.googleapis.com/v0/b/paxequestrian-e455d.firebasestorage.app/o/Group%209.png?alt=media&token=941bd402-fc4e-41ca-9f4e-9c538b62dad5',
+                }}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+
             <View style={styles.header}>
-              <Text style={styles.title}>Leather Works</Text>
+              
               <Text style={styles.subtitle}>Manager Login</Text>
             </View>
+
 
             <View style={styles.form}>
               <Input
@@ -101,7 +111,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5DC',
+    backgroundColor: '##141414',
   },
   keyboardAvoid: {
     flex: 1,
@@ -110,18 +120,19 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   content: {
+    backgroundColor: '#141414',
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 16,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#8B4513',
+    color: '#141414',
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -133,7 +144,7 @@ const styles = StyleSheet.create({
   form: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 24,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -155,4 +166,15 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     textAlign: 'center',
   },
+
+  logo: {
+  width: '100%',     
+  height: 200,
+  marginBottom: 16,
+  marginTop: 16,
+
+},
+
+
+
 });

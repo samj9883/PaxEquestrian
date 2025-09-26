@@ -143,8 +143,8 @@ const firebaseConfig = {
 ## 🎨 Design System
 
 ### Colors
-- **Primary**: `#8B4513` (Saddle Brown - leather theme)
-- **Background**: `#F5F5DC` (Beige)
+- **Primary**: `#141414` (Saddle Brown - leather theme)
+- **Background**: `##141414` (Beige)
 - **Success**: `#10B981`
 - **Warning**: `#F59E0B`
 - **Error**: `#DC2626`

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { Input } from '../../components/common/Input';
 import ClientDetailsModal from '../../components/modals/ClientDetailsModal';
@@ -151,7 +151,7 @@ export default function ClientsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5DC' },
+  container: { flex: 1, backgroundColor: '##141414' },
   searchContainer: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   clientName: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', flex: 1 },
   orderBadge: {
-    backgroundColor: '#8B4513',
+    backgroundColor: '#141414',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,

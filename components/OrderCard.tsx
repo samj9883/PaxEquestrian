@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8B4513',
+    color: '#141414',
     marginBottom: 4,
   },
   statusBadge: {
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#8B4513',
+    backgroundColor: '#141414',
     borderRadius: 3,
   },
   priceRow: {

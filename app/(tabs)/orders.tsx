@@ -233,7 +233,7 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5DC' },
+  container: { flex: 1, backgroundColor: '##141414' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -20,7 +20,7 @@ export default function EstimationScreen() {
   if (!userReady) {
     return (
       <View style={styles.emptyContainer}>
-        <ActivityIndicator size="large" color="#8B4513" />
+        <ActivityIndicator size="large" color="#141414" />
         <Text style={styles.emptyText}>Checking authentication...</Text>
       </View>
     );
@@ -29,7 +29,7 @@ export default function EstimationScreen() {
   if (loading) {
     return (
       <View style={styles.emptyContainer}>
-        <ActivityIndicator size="large" color="#8B4513" />
+        <ActivityIndicator size="large" color="#141414" />
         <Text style={styles.emptyText}>Loading orders...</Text>
       </View>
     );
@@ -99,7 +99,7 @@ export default function EstimationScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5DC' },
+  container: { flex: 1, backgroundColor: '##141414' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: '#8B4513',
+    backgroundColor: '#141414',
   },
   settingsText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
   workInfoContainer: {
